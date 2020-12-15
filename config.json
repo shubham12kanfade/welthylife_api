@@ -1,0 +1,24 @@
+{
+    "server": {
+        "port": "3322"
+    },
+    "dbUrl": "mongodb://wealthylifetest:Test2123@ds237363.mlab.com:37363/wealthylife",
+    "#dbUrl": "mongodb://localhost:27017/whealthy_life",
+    "#staticFilesUrl": "http://whealthylife.in:3311/static/",
+    "staticFilesUrl": "http://3.128.207.146:3322/static/",
+    "secretKey": "wealthi-life-app",
+    "smsKey": "b1873470-87f7-11ea-9fa5-0200cd936042",
+    "uploadUrl": "public/uploads/",
+    "emailUsername": "",
+    "emailPassword": "",
+    "emailVerifyURL": "http://3.128.207.146:3322/authentication/verify/email/",
+    "appURL": "http://3.6.80.178:3313/",
+    "auth": {
+        "user": "info.accelgrowth@gmail.com",
+        "pass": "Sk7057250694"
+    },
+    "OT": {
+        "apiKey": "46730612",
+        "apiSecret": "ed7706adf548fa02fcb6e2f0c44e1a72ae2b793f"
+    }
+}

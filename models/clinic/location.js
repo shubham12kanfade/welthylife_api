@@ -1,3 +1,7 @@
+const {
+    stream
+} = require('winston');
+
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
@@ -22,6 +26,10 @@ const Location = new Schema({
             require: true
         },
     },
+    status: {
+        type: String,
+        default: "active"
+    }
 }, {
     timestamps: true
 });

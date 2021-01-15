@@ -40,7 +40,7 @@ router.post("/", (req, res) => {
     });
 });
 
-router.post("/add", (req, res) => {
+router.post("/add", auth, (req, res) => {
   log.debug("/api/profile/details===================>", req.body.location);
   var obj = [];
   console.log("ojndosnd", req.body)
@@ -62,12 +62,12 @@ router.post("/add", (req, res) => {
     });
 });
 
-router.put("/update/by:id", (req, res) => {
+router.get("/by/:id", auth, (req, res) => {
   log.debug("/api/");
   crudController
-    .updateBy(ClinicLocation, {
-      _id: req.paramsms.id
-    }, req.body)
+    .getOne(Location, {
+      _id: req.params.id
+    })
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })
@@ -77,10 +77,36 @@ router.put("/update/by:id", (req, res) => {
     });
 });
 
-router.post("/delete/by/:id", auth, (req, res) => {
+router.put("/update/by/:id", auth, (req, res) => {
   log.debug("/api/");
   crudController
-    .delete(ClinicLocation, req.body)
+    .updateBy(Location, req.params.id, req.body)
+    .then((userData) => {
+      response.successResponse(res, 200, userData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
+router.delete("/delete/by/:id", auth, (req, res) => {
+  log.debug("/api/");
+  crudController
+    .delete(Location, req.params.id)
+    .then((userData) => {
+      response.successResponse(res, 200, "deleted");
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
+router.get("/getAll", auth, (req, res) => {
+  log.debug("/api/");
+  crudController
+    .getAll(Location)
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })

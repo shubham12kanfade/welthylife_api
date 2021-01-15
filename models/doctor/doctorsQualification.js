@@ -9,7 +9,7 @@ const DoctorsQualification = new Schema(
     },
     qualificationId: {
       type: String,
-      // ref: 'Qualification'
+      ref: "Qualification",
     },
     completionYear: String,
     college: String,

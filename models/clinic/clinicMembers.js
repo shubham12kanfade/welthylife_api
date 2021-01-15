@@ -9,8 +9,15 @@ const ClinicMember = new Schema({
     doctorId: {
         type: mongoose.Types.ObjectId,
         ref: 'User'
+    },
+    locationId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Location'
+    },
+    timingId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'MemberTimings'
     }
-
 }, {
     timestamps: true
 });

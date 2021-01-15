@@ -2,10 +2,10 @@
     "server": {
         "port": "3322"
     },
-    "dbUrl": "mongodb://wealthylifetest:Test2123@ds237363.mlab.com:37363/wealthylife",
+    "dbUrl": "mongodb+srv://whealthylife:whealthylife123@cluster0.qc6cd.mongodb.net/whealthylife?retryWrites=true&w=majority",
     "#dbUrl": "mongodb://localhost:27017/whealthy_life",
     "#staticFilesUrl": "http://whealthylife.in:3311/static/",
-    "staticFilesUrl": "http://3.128.207.146:3322/static/",
+    "staticFilesUrl": "http://api.whealthylife.in/static/",
     "secretKey": "wealthi-life-app",
     "smsKey": "b1873470-87f7-11ea-9fa5-0200cd936042",
     "uploadUrl": "public/uploads/",

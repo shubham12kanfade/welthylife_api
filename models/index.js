@@ -1,4 +1,5 @@
 require("./users");
+require("./prefix");
 require("./userSession");
 require("./conference/conferenceSession");
 require("./reviews");
@@ -19,6 +20,9 @@ require("./doctor/doctorsTrearments");
 require("./doctor/appoinments");
 require("./doctor/doctorsAwards");
 require("./doctor/doctorsMemberships");
+require("./doctor/doctorDocs");
+require("./doctor/doctorsSymptoms");
+require("./doctor/usersAccounts");
 
 require("./doctor/Questions");
 require("./doctor/Answers");
@@ -38,12 +42,15 @@ require("./testAndLab/labPackages");
 require("./qts/qualifications");
 require("./qts/specializations");
 require("./qts/treatments");
+require("./qts/symptoms");
 
 require("./clinic/memberLocations");
 require("./clinic/clinicMembers");
 require("./clinic/clinics");
 require("./clinic/location");
 require("./clinic/memberTimings");
+require("./clinic/facilities");
+require("./clinic/clinicFacilities");
 
 require("./logs");
 

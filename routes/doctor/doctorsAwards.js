@@ -12,7 +12,7 @@ let _ = require("lodash");
 
 router.get("/all", auth, (req, res) => {
   crudController
-    .getbySortByPopulate(DoctorsAwards, { doctorId: req.userId }, "awardId")
+    .getbySortByPopulate(DoctorsAwards, { userId: req.userId }, "awardId")
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -26,7 +26,7 @@ router.get("/by/:id", auth, (req, res) => {
   console.log("/by/:id==========+++++++++++++");
 
   crudController
-    .getbySortByPopulate(DoctorsAwards, { doctorId: req.params.id }, "awardId")
+    .getbySortByPopulate(DoctorsAwards, { userId: req.params.id }, "awardId")
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -37,20 +37,22 @@ router.get("/by/:id", auth, (req, res) => {
 });
 
 router.post("/add", auth, (req, res) => {
-  //   var obj = [];
-
-  //   Array.from(req.body.qualificationArray).forEach((ele) => {
-  //     obj.push({
-  //       doctorId: req.userId,
-  //       qualificationId: ele.qualificationId,
-  //       degree: ele.degree,
-  //       completionYear: ele.completionYear,
-  //       college: ele.college,
-  //     });
-  //   });
-  //   console.log("obj=>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", obj);
+  var obj = [];
+  var userId;
+  if (req.body.userId) {
+    userId = req.body.userId;
+  } else {
+    userId = req.userId;
+  }
+  Array.from(req.body.awardArray).forEach((ele) => {
+    obj.push({
+      userId: userId,
+      awardId: ele.awardId,
+      year: ele.year,
+    });
+  });
   crudController
-    .add(DoctorsAwards, req.body)
+    .insertMultiple(DoctorsAwards, obj)
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })

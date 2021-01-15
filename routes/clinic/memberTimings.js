@@ -15,7 +15,9 @@ let _ = require("lodash");
 router.get("/by/doctorId/:id", (req, res) => {
   log.debug("/api/");
   crudController
-    .getBy(MemberTimings, { doctorId: req.params.id })
+    .getBy(MemberTimings, {
+      doctorId: req.params.id
+    })
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })
@@ -25,7 +27,14 @@ router.get("/by/doctorId/:id", (req, res) => {
     });
 });
 
-router.post("/doctors/timing", (req, res) => {
+router.post("/doctors/timing", auth, (req, res) => {
+  var userId
+  if (req.body.userId) {
+    userId = req.body.userId
+  } else {
+    userId = req.userId
+  }
+  req.body["doctorId"] = userId
   log.debug("/api/profile/details");
   crudController
     .add(MemberTimings, req.body)
@@ -41,7 +50,9 @@ router.post("/doctors/timing", (req, res) => {
 router.put("/update/by:id", (req, res) => {
   log.debug("/api/");
   crudController
-    .updateBy(MemberTimings, { _id: req.paramsms.id }, req.body)
+    .updateBy(MemberTimings, {
+      _id: req.paramsms.id
+    }, req.body)
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })

@@ -55,7 +55,7 @@ router.post("/add", auth, (req, res) => {
 
       Array.from(req.body.qualificationArray).forEach((ele) => {
         obj.push({
-          doctorId: req.userId,
+          doctorId: userId,
           qualificationId: ele.qualificationId,
           degree: ele.degree,
           completionYear: ele.completionYear,

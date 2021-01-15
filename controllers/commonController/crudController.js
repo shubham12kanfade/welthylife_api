@@ -1,4 +1,6 @@
-const { schema } = require("../../models/logs");
+const {
+  schema
+} = require("../../models/logs");
 
 module.exports = {
   add: (schema, data) => {
@@ -18,7 +20,11 @@ module.exports = {
   getAll: (schema) => {
     return new Promise(function (resolve, reject) {
       schema
-        .find({ status: { $ne: "deleted" } })
+        .find({
+          status: {
+            $ne: "deleted"
+          }
+        })
         .then((resData) => {
           resolve(resData);
         })
@@ -32,7 +38,12 @@ module.exports = {
     console.log("object", object);
     return new Promise(function (resolve, reject) {
       schema
-        .find({ ...object, status: { $ne: "deleted" } })
+        .find({
+          ...object,
+          status: {
+            $ne: "deleted"
+          }
+        })
         .then((resData) => {
           resolve(resData);
         })
@@ -46,7 +57,12 @@ module.exports = {
   getCount: (schema, object) => {
     return new Promise(function (resolve, reject) {
       schema
-        .count({ ...object, status: { $ne: "deleted" } })
+        .count({
+          ...object,
+          status: {
+            $ne: "deleted"
+          }
+        })
         .then((resData) => {
           resolve(resData);
         })
@@ -59,7 +75,12 @@ module.exports = {
   getOne: (schema, object) => {
     return new Promise(function (resolve, reject) {
       schema
-        .findOne({ ...object, status: { $ne: "deleted" } })
+        .findOne({
+          ...object,
+          status: {
+            $ne: "deleted"
+          }
+        })
         .then((resData) => {
           resolve(resData);
         })
@@ -72,12 +93,12 @@ module.exports = {
   updateBy: (schema, id, data) => {
     return new Promise(function (resolve, reject) {
       schema
-        .findByIdAndUpdate(
-          {
+        .findByIdAndUpdate({
             _id: id,
           },
-          data,
-          { $new: true }
+          data, {
+            $new: true
+          }
         )
         .then((resData) => {
           resolve(resData);
@@ -91,7 +112,9 @@ module.exports = {
   updateWithObject: (schema, objcet, data) => {
     return new Promise(function (resolve, reject) {
       schema
-        .findOneAndUpdate(objcet, data, { $new: true })
+        .findOneAndUpdate(objcet, data, {
+          $new: true
+        })
         .then((resData) => {
           resolve(resData);
         })
@@ -104,13 +127,13 @@ module.exports = {
   delete: (schema, id) => {
     return new Promise(function (resolve, reject) {
       schema
-        .findByIdAndUpdate(
-          {
-            _id: id,
-          },
-          { status: "deleted" },
-          { $new: true }
-        )
+        .findByIdAndUpdate({
+          _id: id,
+        }, {
+          status: "deleted"
+        }, {
+          $new: true
+        })
         .then((resData) => {
           resolve(resData);
         })
@@ -151,7 +174,12 @@ module.exports = {
   getWithSortBy: (schema, object, sort) => {
     return new Promise(function (resolve, reject) {
       schema
-        .find({ ...object, status: { $ne: "deleted" } })
+        .find({
+          ...object,
+          status: {
+            $ne: "deleted"
+          }
+        })
         .sort(sort)
         .then((resData) => {
           resolve(resData);
@@ -165,7 +193,12 @@ module.exports = {
   getWithSortByLimit: (schema, object, sort, limit) => {
     return new Promise(function (resolve, reject) {
       schema
-        .find({ ...object, status: { $ne: "deleted" } })
+        .find({
+          ...object,
+          status: {
+            $ne: "deleted"
+          }
+        })
         .sort(sort)
         .limit(limit)
         .then((resData) => {
@@ -180,7 +213,11 @@ module.exports = {
   getWithSortByPopulate: (schema, populates) => {
     return new Promise(function (resolve, reject) {
       schema
-        .find({ status: { $ne: "deleted" } })
+        .find({
+          status: {
+            $ne: "deleted"
+          }
+        })
         .populate(populates)
         .then((resData) => {
           resolve(resData);
@@ -195,7 +232,12 @@ module.exports = {
   getbySortByPopulate: (schema, object, populates) => {
     return new Promise(function (resolve, reject) {
       schema
-        .find({ ...object, status: { $ne: "deleted" } })
+        .find({
+          ...object,
+          status: {
+            $ne: "deleted"
+          }
+        })
         .populate(populates)
         .then((resData) => {
           resolve(resData);
@@ -211,7 +253,10 @@ module.exports = {
     return new Promise(function (resolve, reject) {
       schema
         .find(object)
-        .populate({ path: populates, select: field })
+        .populate({
+          path: populates,
+          select: field
+        })
         .then((resData) => {
           resolve(resData);
         })
@@ -275,6 +320,26 @@ module.exports = {
         })
         .catch((error) => {
           log.debug("Add status error", error);
+          reject(error);
+        });
+    });
+  },
+
+  getRecordByPopulate: (schema, object, populates) => {
+    return new Promise(function (resolve, reject) {
+      schema
+        .find({
+          ...object,
+          status: {
+            $ne: "deleted"
+          }
+        })
+        .populate(populates)
+        .then((resData) => {
+          resolve(resData);
+        })
+        .catch((error) => {
+          console.log("error", error);
           reject(error);
         });
     });

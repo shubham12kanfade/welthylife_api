@@ -7,6 +7,7 @@ const Awards = new Schema(
     descrioton: String,
     from: String,
     icon: String,
+    year: String,
     status: {
       type: String,
       default: "active",

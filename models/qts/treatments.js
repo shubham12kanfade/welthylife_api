@@ -3,11 +3,6 @@ const mongoose = require("mongoose"),
 
 const Treatment = new Schema(
   {
-    specializationId: {
-      type: mongoose.Types.ObjectId,
-      ref: "Specialization",
-    },
-    doctorId: String,
     fullName: String,
     shortName: String,
     icon: String,

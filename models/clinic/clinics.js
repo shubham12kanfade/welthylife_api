@@ -7,6 +7,10 @@ const Clinic = new Schema({
         ref: 'User'
     },
     name: String,
+    icon: String,
+    description: String,
+    title: String,
+    images: Array,
     status: {
         type: String,
         default: "active"

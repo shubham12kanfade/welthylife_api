@@ -3,7 +3,7 @@ const mongoose = require("mongoose"),
 
 const DoctorsAwards = new Schema(
   {
-    doctorId: {
+    userId: {
       type: mongoose.Types.ObjectId,
       ref: "User",
     },
@@ -12,7 +12,6 @@ const DoctorsAwards = new Schema(
       ref: "Awards",
     },
     year: String,
-    month: String,
   },
   {
     timestamps: true,

@@ -10,7 +10,8 @@ const Clinic = mongoose.model("Clinic");
 let auth = require("../../helper/auth");
 let _ = require("lodash");
 
-router.post("/", (req, res) => {
+router.post("/", auth, (req, res) => {
+  req.body["addedBy"] = req.userId
   log.debug("/api/profile/details");
   crudController
     .add(Clinic, req.body)
@@ -23,10 +24,10 @@ router.post("/", (req, res) => {
     });
 });
 
-router.put("/update/by:id", (req, res) => {
+router.put("/update/by/:id", auth, (req, res) => {
   log.debug("/api/");
   crudController
-    .updateBy(Clinic, { _id: req.paramsms.id }, req.body)
+    .updateBy(Clinic, req.params.id, req.body)
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })
@@ -39,7 +40,9 @@ router.put("/update/by:id", (req, res) => {
 router.get("/by/:id", (req, res) => {
   log.debug("/api/");
   crudController
-    .getBy(Clinic, { addedBy: req.params.id })
+    .getBy(Clinic, {
+      _id: req.params.id
+    })
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })
@@ -75,10 +78,10 @@ router.get("/by/doctor/:doctorId", (req, res) => {
     });
 });
 
-router.post("/delete/by/:id", auth, (req, res) => {
+router.delete("/delete/by/:id", auth, (req, res) => {
   log.debug("/api/");
   crudController
-    .delete(Clinic, req.body)
+    .deletePerm(Clinic, req.params.id)
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })

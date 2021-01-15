@@ -15,7 +15,9 @@ let _ = require("lodash");
 router.get("/by/clinicId/:clinicId", (req, res) => {
   log.debug("/api/");
   crudController
-    .getBy(Location, { clinicId: req.params.clinicId })
+    .getBy(Location, {
+      clinicId: req.params.clinicId
+    })
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })
@@ -25,7 +27,7 @@ router.get("/by/clinicId/:clinicId", (req, res) => {
     });
 });
 
-router.post("/doctors/location", (req, res) => {
+router.post("/", (req, res) => {
   log.debug("/api/profile/details");
   crudController
     .add(MemberLocation, req.body)
@@ -38,17 +40,17 @@ router.post("/doctors/location", (req, res) => {
     });
 });
 
-router.post("/", (req, res) => {
+router.post("/add", (req, res) => {
   log.debug("/api/profile/details===================>", req.body.location);
   var obj = [];
-
-  Array.from(req.body.location).forEach((ele) => {
+  console.log("ojndosnd", req.body)
+  Array.from(req.body.locationArray).forEach((ele) => {
     obj.push({
       clinicId: req.body.clinicId,
-      location: ele,
+      location: ele
     });
   });
-  console.log("obj=>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", obj);
+  console.log("===========>", obj)
   crudController
     .insertMultiple(Location, obj)
     .then((resData) => {
@@ -63,7 +65,9 @@ router.post("/", (req, res) => {
 router.put("/update/by:id", (req, res) => {
   log.debug("/api/");
   crudController
-    .updateBy(ClinicLocation, { _id: req.paramsms.id }, req.body)
+    .updateBy(ClinicLocation, {
+      _id: req.paramsms.id
+    }, req.body)
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })

@@ -16,7 +16,9 @@ let _ = require("lodash");
 router.get("/all/members/:clinicId", (req, res) => {
     log.debug("/api/");
     clinicController
-        .getBy(ClinicMember, { clinicId: req.params.clinicId })
+        .getBy(ClinicMember, {
+            clinicId: req.params.clinicId
+        })
         .then((userData) => {
             response.successResponse(res, 200, userData);
         })
@@ -26,8 +28,9 @@ router.get("/all/members/:clinicId", (req, res) => {
         });
 });
 
-router.post("/", (req, res) => {
+router.post("/", auth, (req, res) => {
     log.debug("/api/profile/details");
+    req.body["doctorId"] = req.userId
     crudController
         .add(ClinicMember, req.body)
         .then((userData) => {
@@ -43,7 +46,9 @@ router.post("/", (req, res) => {
 router.put("/update/by:id", (req, res) => {
     log.debug("/api/");
     crudController
-        .updateBy(ClinicMember, { _id: req.paramsms.id }, req.body)
+        .updateBy(ClinicMember, {
+            _id: req.paramsms.id
+        }, req.body)
         .then((userData) => {
             response.successResponse(res, 200, userData);
         })
@@ -70,6 +75,19 @@ router.post("/delete/by/:id", auth, (req, res) => {
         });
 });
 
-
+router.get("/clinic/details", auth, (req, res) => {
+    log.debug("/api/");
+    crudController
+        .getRecordByPopulate(ClinicMember, {
+            doctorId: req.userId
+        }, ["clinicId", "locationId", "timingId"])
+        .then((userData) => {
+            response.successResponse(res, 200, userData);
+        })
+        .catch((error) => {
+            log.error(error);
+            response.errorResponse(res, 500);
+        });
+});
 
 module.exports = router;

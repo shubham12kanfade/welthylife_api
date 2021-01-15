@@ -14,6 +14,7 @@ module.exports = (app) => {
   let appoinment = require("./doctor/appoinment");
   let qualification = require("./qts/qualification");
   let specialization = require("./qts/specialization");
+  let symptoms = require("./qts/symptoms");
   let treatment = require("./qts/treatment");
   let clinic = require("./clinic/clinic");
   let clinicLocation = require("./clinic/clinicLocation");
@@ -36,6 +37,11 @@ module.exports = (app) => {
   let docAwards = require("./doctor/doctorsAwards");
   let queAns = require("./doctor/queAns");
   let healthFeed = require("./healthFeed");
+  let prefix = require("./prefix");
+  let doctorDocs = require("./doctor/doctorDoc");
+  let doctorSymp = require("./doctor/doctorsSymptoms");
+  let facilities = require("./clinic/facilities");
+  let clinicfacilities = require("./clinic/clinicFacilities");
 
   //=========PRODUCTS=============
   let product = require("./products/products");
@@ -81,4 +87,10 @@ module.exports = (app) => {
   app.use("/api/v1/QA", queAns);
   app.use("/api/v1/HF", healthFeed);
   app.use("/api/v1/userCart", userCart);
+  app.use("/api/v1/symptoms", symptoms);
+  app.use("/api/v1/prefix", prefix);
+  app.use("/api/v1/doctorDocs", doctorDocs);
+  app.use("/api/v1/doctorSymptoms", doctorSymp);
+  app.use("/api/v1/facilities", facilities);
+  app.use("/api/v1/clinicFfacilities", clinicfacilities);
 };

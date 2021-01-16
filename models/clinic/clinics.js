@@ -7,6 +7,11 @@ const Clinic = new Schema({
         ref: 'User'
     },
     name: String,
+    phone: String,
+    email: {
+        type: String,
+        unique: true
+    },
     icon: String,
     description: String,
     title: String,

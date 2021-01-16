@@ -40,19 +40,9 @@ router.post("/", (req, res) => {
     });
 });
 
-router.post("/add", auth, (req, res) => {
-  log.debug("/api/profile/details===================>", req.body.location);
-  var obj = [];
-  console.log("ojndosnd", req.body)
-  Array.from(req.body.locationArray).forEach((ele) => {
-    obj.push({
-      clinicId: req.body.clinicId,
-      location: ele
-    });
-  });
-  console.log("===========>", obj)
+router.post("/add", (req, res) => {
   crudController
-    .insertMultiple(Location, obj)
+    .add(Location, req.body)
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -115,5 +105,20 @@ router.get("/getAll", auth, (req, res) => {
       response.errorResponse(res, 500);
     });
 });
+router.get("/by/clinicId/:id", auth, (req, res) => {
+  log.debug("/api/");
+  crudController
+    .getBy(Location, {
+      clinicId: req.params.id
+    })
+    .then((userData) => {
+      response.successResponse(res, 200, userData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
 
 module.exports = router;

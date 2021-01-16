@@ -26,6 +26,7 @@ const Location = new Schema({
             require: true
         },
     },
+    facilities: Array,
     status: {
         type: String,
         default: "active"

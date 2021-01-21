@@ -158,6 +158,21 @@ module.exports = {
         });
     });
   },
+  deleteMulti: (schema, object) => {
+    return new Promise(function (resolve, reject) {
+      schema
+        .deleteMany({
+          ...object,
+        })
+        .then((resData) => {
+          resolve(resData);
+        })
+        .catch((error) => {
+          console.log("error", error);
+          reject(error);
+        });
+    });
+  },
   deleteMulti: (schema, obj) => {
     return new Promise(function (resolve, reject) {
       schema

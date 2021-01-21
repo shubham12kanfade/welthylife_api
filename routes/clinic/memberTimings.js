@@ -123,10 +123,19 @@ router.post("/delete/by/:id", auth, (req, res) => {
 
 router.get("/clinic/details/:id", (req, res) => {
   log.debug("/api/");
-  crudController
-    .getRecordByPopulate(MemberTimings, {
-      clinicId: req.params.id
-    }, ["clinicId", "locationId"])
+  // crudController
+  //   .getRecordByPopulate(MemberTimings, {
+  //     clinicId: req.params.id
+  //   }, ["clinicId", "locationId"])
+  MemberTimings.find({
+      $and: [{
+        clinicId: req.params.id
+      }, {
+        status: {
+          $ne: "deleted"
+        }
+      }]
+    }).populate(["clinicId", "locationId"])
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })

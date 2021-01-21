@@ -17,7 +17,9 @@ router.get("/all", auth, (req, res) => {
     userId = req.userId;
   }
   crudController
-    .getBy(DoctorDocs, { userId: userId })
+    .getBy(DoctorDocs, {
+      userId: userId
+    })
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -30,7 +32,9 @@ router.get("/all", auth, (req, res) => {
 router.get("/by/:userId", auth, (req, res) => {
   console.log("/by/:id==========+++++++++++++");
   crudController
-    .getBy(DoctorDocs, { userId: req.params.userId })
+    .getBy(DoctorDocs, {
+      userId: req.params.userId
+    })
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -47,15 +51,25 @@ router.post("/add", auth, (req, res) => {
   } else {
     userId = req.userId;
   }
-  crudController
-    .add(DoctorDocs, { ...req.body, userId })
-    .then((resData) => {
-      response.successResponse(res, 200, resData);
-    })
-    .catch((error) => {
-      log.error(error.code);
-      response.errorResponse(res, parseInt(error.code));
-    });
+  crudController.deleteMulti(DoctorDocs, {
+    userId: userId
+  }).then((delRes) => {
+    crudController
+      .add(DoctorDocs, {
+        ...req.body,
+        userId
+      })
+      .then((resData) => {
+        response.successResponse(res, 200, resData);
+      })
+      .catch((error) => {
+        log.error(error.code);
+        response.errorResponse(res, parseInt(error.code));
+      });
+  }).catch((error) => {
+    log.error(error.code);
+    response.errorResponse(res, parseInt(error.code));
+  })
 });
 
 router.put("/edit/by/:id", (req, res) => {

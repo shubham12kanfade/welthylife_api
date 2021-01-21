@@ -52,6 +52,22 @@ router.get("/get/by/:id", (req, res) => {
     });
 });
 
+router.get("/by/:id", (req, res) => {
+  log.debug("/api/");
+  crudController
+    .getBy(Clinic, {
+      _id: req.params.id
+    })
+    .then((userData) => {
+      response.successResponse(res, 200, userData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
+
 router.get("/all", (req, res) => {
   log.debug("/api/");
   crudController

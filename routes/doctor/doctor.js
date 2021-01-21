@@ -416,33 +416,15 @@ router.post("/admin/add/q/s/a/reg", auth, (req, res) => {
   var specialArray = [];
   var treatArray = [];
   var sympArray = [];
-
-  var userId;
+  var userId, splResp,
+    awardResp,
+    treResp,
+    symResp;
   if (req.body.userId) {
     userId = req.body.userId;
   } else {
     userId = req.userId;
   }
-
-  Array.from(req.body.awardArray).forEach((ele) => {
-    awardObj.push({
-      userId: userId,
-      awardId: ele.awardId,
-      year: ele.year,
-    });
-  });
-  Array.from(req.body.symptomArray).forEach((ele) => {
-    sympArray.push({
-      doctorId: userId,
-      symptomId: ele,
-    });
-  });
-  Array.from(req.body.treatmentArray).forEach((ele) => {
-    treatArray.push({
-      doctorId: userId,
-      treatmentId: ele,
-    });
-  });
   Array.from(req.body.qualificationArray).forEach((ele) => {
     qualifyArray.push({
       doctorId: userId,
@@ -452,237 +434,378 @@ router.post("/admin/add/q/s/a/reg", auth, (req, res) => {
       college: ele.college,
     });
   });
-  Array.from(req.body.specializationArray).forEach((ele) => {
-    specialArray.push({
-      doctorId: userId,
-      specializationId: ele,
-    });
-  });
-  crudController
-    .insertMultiple(DoctorsAwards, awardObj)
-    .then((awardRes) => {
-      crudController
-        .insertMultiple(DoctorsQualification, qualifyArray)
-        .then((qulRes) => {
-          crudController
-            .insertMultiple(DoctorsSpecialization, specialArray)
-            .then((splRes) => {
-              crudController
-                .insertMultiple(DoctorsTreatments, treatArray)
-                .then((treRes) => {
-                  crudController
-                    .insertMultiple(DoctorsSymptoms, sympArray)
-                    .then((symRes) => {
-                      crudController.updateBy(User, userId, {
-                        registrationNumber: req.body.registrationNumber,
-                        registrationCouncil: req.body.registrationCouncil,
-                        registrationYear: req.body.registrationYear,
-                      }).then(userRes => {
-                        response.successResponse(res, 200, {
-                          userRes,
-                          splRes,
-                          qulRes,
-                          awardRes,
-                          treRes,
-                          symRes
-                        });
-                      }).catch((error) => {
-                        log.error(error.code);
-                        response.errorResponse(res, parseInt(error.code));
-                      });
-                    })
-                    .catch((error) => {
-                      log.error(error.code);
-                      response.errorResponse(res, parseInt(error.code));
-                    });
-                })
-                .catch((error) => {
-                  log.error(error.code);
-                  response.errorResponse(res, parseInt(error.code));
-                });
-            })
-            .catch((error) => {
-              log.error(error.code);
-              response.errorResponse(res, parseInt(error.code));
-            });
-        })
-        .catch((error) => {
-          log.error(error.code);
-          response.errorResponse(res, parseInt(error.code));
-        });
-    })
-    .catch((error) => {
-      log.error(error.code);
-      response.errorResponse(res, parseInt(error.code));
-    });
-});
 
-router.post("/admin/add/slots/acc", auth, (req, res) => {
-  var userId;
-  if (req.body.userId) {
-    userId = req.body.userId;
+  if (!req.body.specializationArray[0]) {
+
   } else {
-    userId = req.userId;
+    Array.from(req.body.specializationArray).forEach((ele) => {
+      specialArray.push({
+        doctorId: userId,
+        specializationId: ele,
+      });
+    });
+    crudController.deleteMulti(DoctorsSpecialization, {
+      doctorId: userId
+    }).then((delSpecRes) => {
+      crudController
+        .insertMultiple(DoctorsSpecialization, specialArray)
+        .then((splRes) => {
+          splResp = splRes
+        }).catch((error) => {
+          console.log("++++++++error adding Specialization")
+          log.error(error.code);
+          response.errorResponse(res, 500);
+        });
+    }).catch((error) => {
+      log.error(error.code);
+      response.errorResponse(res, 500);
+    });
   }
-  req.body["userId"] = userId
-  crudController.add(Slots , req.body).then((data)=>{
-    response.successResponse(res , 200 , data)
-  }).catch((error)=>{
-    log.error(error.code)
-    response.errorResponse(res, parseInt(error.code));
-  })
-  // req.body.slotsArray.forEach(element => {
-  //   element["userId"] = userId;
-  // });
+
+  if (!req.body.awardArray[0] || req.body.awardArray[0].awardId == "") {
+
+  } else {
+    Array.from(req.body.awardArray).forEach((ele) => {
+      awardObj.push({
+        userId: userId,
+        awardId: ele.awardId,
+        year: ele.year,
+      });
+    });
+    crudController.deleteMulti(DoctorsAwards, {
+      doctorId: userId
+    }).then((delAwardRes) => {
+      crudController
+        .insertMultiple(DoctorsAwards, awardObj)
+        .then((awardRes) => {
+          awardResp = awardRes
+        }).catch((error) => {
+          console.log("++++++++error adding Award", error)
+          log.error(error.code);
+          response.errorResponse(res, 500);
+        });
+    }).catch((error) => {
+      log.error(error.code);
+      response.errorResponse(res, 500);
+    });
+  }
+
+  if (!req.body.treatmentArray[0]) {
+
+  } else {
+    Array.from(req.body.treatmentArray).forEach((ele) => {
+      treatArray.push({
+        doctorId: userId,
+        treatmentId: ele,
+      });
+    });
+    crudController.deleteMulti(DoctorsTreatments, {
+      doctorId: userId
+    }).then((delTreatRes) => {
+      crudController
+        .insertMultiple(DoctorsTreatments, treatArray)
+        .then((treRes) => {
+          treResp = treRes
+        }).catch((error) => {
+          console.log("++++++++error adding Treatment")
+          log.error(error.code);
+          response.errorResponse(res, 500);
+        });
+    }).catch((error) => {
+      log.error(error.code);
+      response.errorResponse(res, 500);
+    });
+  }
+
+  if (!req.body.symptomArray[0]) {
+
+  } else {
+    Array.from(req.body.symptomArray).forEach((ele) => {
+      sympArray.push({
+        doctorId: userId,
+        symptomId: ele,
+      });
+    });
+    crudController.deleteMulti(DoctorsSymptoms, {
+      doctorId: userId
+    }).then((delSympRes) => {
+      crudController
+        .insertMultiple(DoctorsSymptoms, sympArray)
+        .then((symRes) => {
+          symResp = symRes
+        }).catch((error) => {
+          log.error(error.code);
+          console.log("++++++++error adding Symptoms")
+          response.errorResponse(res, 500);
+        })
+    }).catch((error) => {
+      log.error(error.code);
+      response.errorResponse(res, 500);
+    });
+  }
+
+
+  //DoctorsAwards                                                              
+
+  crudController.deleteMulti(DoctorsQualification, {
+    doctorId: userId
+  }).then((delQulRes) => {}).catch((error) => {
+    log.error(error.code);
+    response.errorResponse(res, 500);
+  });
+  //DoctorsQualification
+  crudController.insertMultiple(DoctorsQualification, qualifyArray)
+    .then((qulRes) => {
+      crudController.updateBy(User, userId, {
+        registrationNumber: req.body.registrationNumber,
+        registrationCouncil: req.body.registrationCouncil,
+        registrationYear: req.body.registrationYear,
+      }).then(userRes => {
+        response.successResponse(res, 200, {
+          userRes,
+          splResp,
+          qulRes,
+          awardResp,
+          treResp,
+          symResp
+        });
+      }).catch((error) => {
+        log.error(error.code);
+        console.log("++++++++error adding User")
+        response.errorResponse(res, 500);
+      });
+    }).catch((error) => {
+      console.log("++++++++error adding Qualification")
+      log.error(error.code);
+      response.errorResponse(res, 500);
+    });
+
+
   // crudController
-  //   .insertMultiple(Slots, req.body.slotsArray)
-  //   .then((slotData) => {
-  //     crudController.add(UsersAccounts, {
-  //       "userId": userId,
-  //       "bankName": req.body.bankName,
-  //       "AccNo": req.body.AccNo,
-  //       "ifscCode": req.body.ifscCode,
-  //       "panNo": req.body.panNo,
-  //     }).then(accRes => {
-  //       crudController.updateBy(User, userId, {
-  //         "fees": req.body.fees,
-  //         "establishmentHour": req.body.establishmentHour,
-  //         "clinicId":req.body.clinicId,
-  //         "locationId":req.body.locationId,
-  //         "hours": req.body.hour,
-  //       }).then(userRes => {
-  //         response.successResponse(res, 200, {
-  //           userRes,
-  //           accRes,
-  //           slotData
-  //         });
-  //       }).catch((error) => {
-  //         log.error(error);
-  //         response.errorResponse(res, 500);
+  //   .insertMultiple(DoctorsAwards, awardObj)
+  //   .then((awardRes) => {
+  //     crudController
+  //       .insertMultiple(DoctorsQualification, qualifyArray)
+  //       .then((qulRes) => {
+  //         crudController
+  //           .insertMultiple(DoctorsSpecialization, specialArray)
+  //           .then((splRes) => {
+  //             crudController
+  //               .insertMultiple(DoctorsTreatments, treatArray)
+  //               .then((treRes) => {
+  //                 crudController
+  //                   .insertMultiple(DoctorsSymptoms, sympArray)
+  //                   .then((symRes) => {
+  //                     crudController.updateBy(User, userId, {
+  //                       registrationNumber: req.body.registrationNumber,
+  //                       registrationCouncil: req.body.registrationCouncil,
+  //                       registrationYear: req.body.registrationYear,
+  //                     }).then(userRes => {
+  //                       response.successResponse(res, 200, {
+  //                         userRes,
+  //                         splRes,
+  //                         qulRes,
+  //                         awardRes,
+  //                         treRes,
+  //                         symRes
+  //                       });
+  //                     }).catch((error) => {
+  //                       log.error(error.code);
+  //                       response.errorResponse(res, parseInt(error.code));
+  //                     });
+  //                   })
+  //                   .catch((error) => {
+  //                     log.error(error.code);
+  //                     response.errorResponse(res, parseInt(error.code));
+  //                   });
+  //               })
+  //               .catch((error) => {
+  //                 log.error(error.code);
+  //                 response.errorResponse(res, parseInt(error.code));
+  //               });
+  //           })
+  //           .catch((error) => {
+  //             log.error(error.code);
+  //             response.errorResponse(res, parseInt(error.code));
+  //           });
+  //       })
+  //       .catch((error) => {
+  //         log.error(error.code);
+  //         response.errorResponse(res, parseInt(error.code));
   //       });
-  //     }).catch((error) => {
-  //       log.error(error);
-  //       response.errorResponse(res, 500);
-  //     });
   //   })
   //   .catch((error) => {
-  //     log.error(error);
-  //     response.errorResponse(res, 500);
+  //     log.error(error.code);
+  //     response.errorResponse(res, parseInt(error.code));
   //   });
-});
+  // });
 
-router.post("/get/admin/add/q/s/a/reg", auth, (req, res) => {
-
-  var userId;
-  if (req.body.userId) {
-    userId = req.body.userId;
-  } else {
-    userId = req.userId;
-  }
-
-  crudController
-    .getBy(DoctorsAwards, {
+  router.post("/admin/add/slots/acc", auth, (req, res) => {
+    var userId;
+    if (req.body.userId) {
+      userId = req.body.userId;
+    } else {
+      userId = req.userId;
+    }
+    req.body.slotsArray.forEach(element => {
+      element["userId"] = userId;
+    });
+    crudController.deleteMulti(Slots, {
       userId: userId
-    })
-    .then((awardRes) => {
+    }).then((delRes) => {
       crudController
-        .getBy(DoctorsQualification, {
-          doctorId: userId
+        .insertMultiple(Slots, req.body.slotsArray)
+        .then((slotData) => {
+          crudController.add(UsersAccounts, {
+            "userId": userId,
+            "bankName": req.body.bankName,
+            "AccNo": req.body.AccNo,
+            "ifscCode": req.body.ifscCode,
+            "panNo": req.body.panNo,
+          }).then(accRes => {
+            crudController.updateBy(User, userId, {
+              "fees": req.body.fees,
+              "establishmentHour": req.body.establishmentHour,
+              "clinicId": req.body.clinicId,
+              "locationId": req.body.locationId,
+              "hours": req.body.hours,
+            }).then(userRes => {
+              response.successResponse(res, 200, {
+                userRes,
+                accRes,
+                slotData
+              });
+            }).catch((error) => {
+              log.error(error);
+              response.errorResponse(res, 500);
+            });
+          }).catch((error) => {
+            log.error(error);
+            response.errorResponse(res, 500);
+          });
         })
-        .then((qulRes) => {
-          crudController
-            .getBy(DoctorsSpecialization, {
-              doctorId: userId
-            })
-            .then((splRes) => {
-              crudController
-                .getBy(DoctorsTreatments, {
-                  doctorId: userId
-                })
-                .then((treRes) => {
-                  crudController
-                    .getBy(DoctorsSymptoms, {
-                      doctorId: userId
-                    })
-                    .then((symRes) => {
-                      crudController.getBy(User, {
-                        _id: userId
-                      }).then(userRes => {
-                        response.successResponse(res, 200, {
-                          userRes,
-                          splRes,
-                          qulRes,
-                          awardRes,
-                          treRes,
-                          symRes
+        .catch((error) => {
+          log.error(error);
+          response.errorResponse(res, 500);
+        });
+    }).catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+  });
+
+  router.post("/get/admin/add/q/s/a/reg", auth, (req, res) => {
+
+    var userId;
+    if (req.body.userId) {
+      userId = req.body.userId;
+    } else {
+      userId = req.userId;
+    }
+
+    crudController
+      .getBy(DoctorsAwards, {
+        userId: userId
+      })
+      .then((awardRes) => {
+        crudController
+          .getBy(DoctorsQualification, {
+            doctorId: userId
+          })
+          .then((qulRes) => {
+            crudController
+              .getBy(DoctorsSpecialization, {
+                doctorId: userId
+              })
+              .then((splRes) => {
+                crudController
+                  .getBy(DoctorsTreatments, {
+                    doctorId: userId
+                  })
+                  .then((treRes) => {
+                    crudController
+                      .getBy(DoctorsSymptoms, {
+                        doctorId: userId
+                      })
+                      .then((symRes) => {
+                        crudController.getBy(User, {
+                          _id: userId
+                        }).then(userRes => {
+                          response.successResponse(res, 200, {
+                            userRes,
+                            splRes,
+                            qulRes,
+                            awardRes,
+                            treRes,
+                            symRes
+                          });
+                        }).catch((error) => {
+                          log.error(error.code);
+                          response.errorResponse(res, parseInt(error.code));
                         });
-                      }).catch((error) => {
+                      })
+                      .catch((error) => {
                         log.error(error.code);
                         response.errorResponse(res, parseInt(error.code));
                       });
-                    })
-                    .catch((error) => {
-                      log.error(error.code);
-                      response.errorResponse(res, parseInt(error.code));
-                    });
-                })
-                .catch((error) => {
-                  log.error(error.code);
-                  response.errorResponse(res, parseInt(error.code));
-                });
-            })
-            .catch((error) => {
-              log.error(error.code);
-              response.errorResponse(res, parseInt(error.code));
-            });
-        })
-        .catch((error) => {
-          log.error(error.code);
-          response.errorResponse(res, parseInt(error.code));
-        });
-    })
-    .catch((error) => {
-      log.error(error.code);
-      response.errorResponse(res, parseInt(error.code));
-    });
-});
+                  })
+                  .catch((error) => {
+                    log.error(error.code);
+                    response.errorResponse(res, parseInt(error.code));
+                  });
+              })
+              .catch((error) => {
+                log.error(error.code);
+                response.errorResponse(res, parseInt(error.code));
+              });
+          })
+          .catch((error) => {
+            log.error(error.code);
+            response.errorResponse(res, parseInt(error.code));
+          });
+      })
+      .catch((error) => {
+        log.error(error.code);
+        response.errorResponse(res, parseInt(error.code));
+      });
+  });
 
-router.post("/get/admin/add/slots/acc", auth, (req, res) => {
-  var userId;
-  if (req.body.userId) {
-    userId = req.body.userId;
-  } else {
-    userId = req.userId;
-  }
-  crudController
-    .getBy(Slots, {
-      userId: userId
-    })
-    .then((slotData) => {
-      crudController.getBy(UsersAccounts, {
+  router.post("/get/admin/add/slots/acc", auth, (req, res) => {
+    var userId;
+    if (req.body.userId) {
+      userId = req.body.userId;
+    } else {
+      userId = req.userId;
+    }
+    crudController
+      .getBy(Slots, {
         userId: userId
-      }).then(accRes => {
-        crudController.getBy(User, userId, {
+      })
+      .then((slotData) => {
+        crudController.getBy(UsersAccounts, {
           userId: userId
-        }).then(userRes => {
-          response.successResponse(res, 200, {
-            userRes,
-            accRes,
-            slotData
+        }).then(accRes => {
+          crudController.getBy(User, userId, {
+            userId: userId
+          }).then(userRes => {
+            response.successResponse(res, 200, {
+              userRes,
+              accRes,
+              slotData
+            });
+          }).catch((error) => {
+            log.error(error);
+            response.errorResponse(res, 500);
           });
         }).catch((error) => {
           log.error(error);
           response.errorResponse(res, 500);
         });
-      }).catch((error) => {
+      })
+      .catch((error) => {
         log.error(error);
         response.errorResponse(res, 500);
       });
-    })
-    .catch((error) => {
-      log.error(error);
-      response.errorResponse(res, 500);
-    });
-});
-
+  });
+})
 module.exports = router;

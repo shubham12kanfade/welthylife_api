@@ -37,10 +37,10 @@ router.put("/update/by/:id", auth, (req, res) => {
     });
 });
 
-router.get("/by/:id", (req, res) => {
+router.get("/get/by/:id", (req, res) => {
   log.debug("/api/");
   crudController
-    .getBy(Clinic, {
+    .getOne(Clinic, {
       _id: req.params.id
     })
     .then((userData) => {

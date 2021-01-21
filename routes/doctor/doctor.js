@@ -434,7 +434,7 @@ router.post("/admin/add/q/s/a/reg", auth, (req, res) => {
   Array.from(req.body.symptomArray).forEach((ele) => {
     sympArray.push({
       doctorId: userId,
-      symptomId: ele.symptomId,
+      symptomId: ele,
     });
   });
   Array.from(req.body.treatmentArray).forEach((ele) => {
@@ -524,42 +524,51 @@ router.post("/admin/add/slots/acc", auth, (req, res) => {
   } else {
     userId = req.userId;
   }
-  req.body.slotsArray.forEach(element => {
-    element["userId"] = userId;
-  });
-  crudController
-    .insertMultiple(Slots, req.body.slotsArray)
-    .then((slotData) => {
-      crudController.add(UsersAccounts, {
-        "userId": userId,
-        "bankName": req.body.bankName,
-        "AccNo": req.body.AccNo,
-        "ifscCode": req.body.ifscCode,
-        "panNo": req.body.panNo,
-      }).then(accRes => {
-        crudController.updateBy(User, userId, {
-          "fees": req.body.fees,
-          "establishmentHour": req.body.establishmentHour,
-          "hours": req.body.hour,
-        }).then(userRes => {
-          response.successResponse(res, 200, {
-            userRes,
-            accRes,
-            slotData
-          });
-        }).catch((error) => {
-          log.error(error);
-          response.errorResponse(res, 500);
-        });
-      }).catch((error) => {
-        log.error(error);
-        response.errorResponse(res, 500);
-      });
-    })
-    .catch((error) => {
-      log.error(error);
-      response.errorResponse(res, 500);
-    });
+  req.body["userId"] = userId
+  crudController.add(Slots , req.body).then((data)=>{
+    response.successResponse(res , 200 , data)
+  }).catch((error)=>{
+    log.error(error.code)
+    response.errorResponse(res, parseInt(error.code));
+  })
+  // req.body.slotsArray.forEach(element => {
+  //   element["userId"] = userId;
+  // });
+  // crudController
+  //   .insertMultiple(Slots, req.body.slotsArray)
+  //   .then((slotData) => {
+  //     crudController.add(UsersAccounts, {
+  //       "userId": userId,
+  //       "bankName": req.body.bankName,
+  //       "AccNo": req.body.AccNo,
+  //       "ifscCode": req.body.ifscCode,
+  //       "panNo": req.body.panNo,
+  //     }).then(accRes => {
+  //       crudController.updateBy(User, userId, {
+  //         "fees": req.body.fees,
+  //         "establishmentHour": req.body.establishmentHour,
+  //         "clinicId":req.body.clinicId,
+  //         "locationId":req.body.locationId,
+  //         "hours": req.body.hour,
+  //       }).then(userRes => {
+  //         response.successResponse(res, 200, {
+  //           userRes,
+  //           accRes,
+  //           slotData
+  //         });
+  //       }).catch((error) => {
+  //         log.error(error);
+  //         response.errorResponse(res, 500);
+  //       });
+  //     }).catch((error) => {
+  //       log.error(error);
+  //       response.errorResponse(res, 500);
+  //     });
+  //   })
+  //   .catch((error) => {
+  //     log.error(error);
+  //     response.errorResponse(res, 500);
+  //   });
 });
 
 router.post("/get/admin/add/q/s/a/reg", auth, (req, res) => {

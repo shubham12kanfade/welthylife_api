@@ -58,6 +58,7 @@ router.post("/", (req, res) => {
       }
     })
   });
+  console.log(arr)
   crudController
     .insertMultiple(Slots, arr)
     .then((slotData) => {

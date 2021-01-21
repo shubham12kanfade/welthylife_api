@@ -92,6 +92,14 @@ const User = new Schema({
   proffession: String,
   registrationProff: String,
   establishmentProff: String,
+  clinicId: {
+    type: mongoose.Types.ObjectId,
+    ref: "Clinic",
+  },
+  locationId: {
+    type: mongoose.Types.ObjectId,
+    ref: "Location",
+  },
   fees: Number,
   establishmentHour: String,
   hours: String,

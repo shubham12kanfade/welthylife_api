@@ -52,6 +52,19 @@ router.post("/add", (req, res) => {
     });
 });
 
+router.post("/add/web/location", auth ,(req, res) => {
+  req.body["clinicId"] = req.userId
+  crudController
+    .add(Location, req.body)
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
 router.get("/by/:id", auth, (req, res) => {
   log.debug("/api/");
   crudController

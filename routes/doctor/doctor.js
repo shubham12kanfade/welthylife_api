@@ -8,6 +8,7 @@ const User = mongoose.model("User");
 const Slots = mongoose.model("Slots");
 const Product = mongoose.model("Product");
 const DoctorsQualification = mongoose.model("DoctorsQualification");
+const Location = mongoose.model("Location");
 const UsersAccounts = mongoose.model("UsersAccounts");
 const DoctorsSpecialization = mongoose.model("DoctorsSpecialization");
 const DoctorsAwards = mongoose.model("DoctorsAwards");
@@ -164,6 +165,32 @@ router.post("/add/doctor", auth, (req, res) => {
     .add(User, req.body)
     .then((userData) => {
       response.successResponse(res, 200, userData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
+router.put("/update/doctor/:id", (req, res) => {
+  log.debug("/api/");
+  crudController
+    .updateBy(User, req.params.id, req.body)
+    .then((userData) => {
+      console.log("==================>", userData.locationId)
+      crudController.updateBy(Location, userData.locationId, req.body).then((locData) => {
+        crudController.getSingleRecordByPopulate(User, {
+          _id: req.params.id
+        }, "locationId").then((userData) => {
+          response.successResponse(res, 200, userData)
+        }).catch((error) => {
+          log.error(error);
+          response.errorResponse(res, 500);
+        })
+      }).catch((error) => {
+        log.error(error);
+        response.errorResponse(res, 500);
+      })
     })
     .catch((error) => {
       log.error(error);
@@ -579,8 +606,6 @@ router.post("/admin/add/q/s/a/reg", auth, (req, res) => {
       log.error(error.code);
       response.errorResponse(res, 500);
     });
-
-
   // crudController
   //   .insertMultiple(DoctorsAwards, awardObj)
   //   .then((awardRes) => {
@@ -639,23 +664,26 @@ router.post("/admin/add/q/s/a/reg", auth, (req, res) => {
   //     response.errorResponse(res, parseInt(error.code));
   //   });
   // });
-
-  router.post("/admin/add/slots/acc", auth, (req, res) => {
-    var userId;
-    if (req.body.userId) {
-      userId = req.body.userId;
-    } else {
-      userId = req.userId;
-    }
-    req.body.slotsArray.forEach(element => {
-      element["userId"] = userId;
-    });
-    crudController.deleteMulti(Slots, {
-      userId: userId
-    }).then((delRes) => {
-      crudController
-        .insertMultiple(Slots, req.body.slotsArray)
-        .then((slotData) => {
+})
+router.post("/admin/add/slots/acc", auth, (req, res) => {
+  var userId;
+  if (req.body.userId) {
+    userId = req.body.userId;
+  } else {
+    userId = req.userId;
+  }
+  req.body.slotsArray.forEach(element => {
+    element["userId"] = userId;
+  });
+  crudController.deleteMulti(Slots, {
+    userId: userId
+  }).then((delRes) => {
+    crudController
+      .insertMultiple(Slots, req.body.slotsArray)
+      .then((slotData) => {
+        crudController.deleteMulti(UsersAccounts, {
+          userId: userId
+        }).then((delUAres) => {
           crudController.add(UsersAccounts, {
             "userId": userId,
             "bankName": req.body.bankName,
@@ -670,10 +698,17 @@ router.post("/admin/add/q/s/a/reg", auth, (req, res) => {
               "locationId": req.body.locationId,
               "hours": req.body.hours,
             }).then(userRes => {
-              response.successResponse(res, 200, {
-                userRes,
-                accRes,
-                slotData
+              crudController.getBy(User, {
+                _id: userId
+              }).then((userData) => {
+                response.successResponse(res, 200, {
+                  userData,
+                  accRes,
+                  slotData
+                });
+              }).catch((error) => {
+                log.error(error);
+                response.errorResponse(res, 500);
               });
             }).catch((error) => {
               log.error(error);
@@ -683,129 +718,134 @@ router.post("/admin/add/q/s/a/reg", auth, (req, res) => {
             log.error(error);
             response.errorResponse(res, 500);
           });
-        })
-        .catch((error) => {
-          log.error(error);
-          response.errorResponse(res, 500);
-        });
-    }).catch((error) => {
-      log.error(error);
-      response.errorResponse(res, 500);
-    });
-  });
-
-  router.post("/get/admin/add/q/s/a/reg", auth, (req, res) => {
-
-    var userId;
-    if (req.body.userId) {
-      userId = req.body.userId;
-    } else {
-      userId = req.userId;
-    }
-
-    crudController
-      .getBy(DoctorsAwards, {
-        userId: userId
-      })
-      .then((awardRes) => {
-        crudController
-          .getBy(DoctorsQualification, {
-            doctorId: userId
-          })
-          .then((qulRes) => {
-            crudController
-              .getBy(DoctorsSpecialization, {
-                doctorId: userId
-              })
-              .then((splRes) => {
-                crudController
-                  .getBy(DoctorsTreatments, {
-                    doctorId: userId
-                  })
-                  .then((treRes) => {
-                    crudController
-                      .getBy(DoctorsSymptoms, {
-                        doctorId: userId
-                      })
-                      .then((symRes) => {
-                        crudController.getBy(User, {
-                          _id: userId
-                        }).then(userRes => {
-                          response.successResponse(res, 200, {
-                            userRes,
-                            splRes,
-                            qulRes,
-                            awardRes,
-                            treRes,
-                            symRes
-                          });
-                        }).catch((error) => {
-                          log.error(error.code);
-                          response.errorResponse(res, parseInt(error.code));
-                        });
-                      })
-                      .catch((error) => {
-                        log.error(error.code);
-                        response.errorResponse(res, parseInt(error.code));
-                      });
-                  })
-                  .catch((error) => {
-                    log.error(error.code);
-                    response.errorResponse(res, parseInt(error.code));
-                  });
-              })
-              .catch((error) => {
-                log.error(error.code);
-                response.errorResponse(res, parseInt(error.code));
-              });
-          })
-          .catch((error) => {
-            log.error(error.code);
-            response.errorResponse(res, parseInt(error.code));
-          });
-      })
-      .catch((error) => {
-        log.error(error.code);
-        response.errorResponse(res, parseInt(error.code));
-      });
-  });
-
-  router.post("/get/admin/add/slots/acc", auth, (req, res) => {
-    var userId;
-    if (req.body.userId) {
-      userId = req.body.userId;
-    } else {
-      userId = req.userId;
-    }
-    crudController
-      .getBy(Slots, {
-        userId: userId
-      })
-      .then((slotData) => {
-        crudController.getBy(UsersAccounts, {
-          userId: userId
-        }).then(accRes => {
-          crudController.getBy(User, userId, {
-            userId: userId
-          }).then(userRes => {
-            response.successResponse(res, 200, {
-              userRes,
-              accRes,
-              slotData
-            });
-          }).catch((error) => {
-            log.error(error);
-            response.errorResponse(res, 500);
-          });
         }).catch((error) => {
           log.error(error);
           response.errorResponse(res, 500);
-        });
+        })
+
       })
       .catch((error) => {
         log.error(error);
         response.errorResponse(res, 500);
       });
+  }).catch((error) => {
+    log.error(error);
+    response.errorResponse(res, 500);
   });
-})
+});
+
+router.post("/get/admin/add/q/s/a/reg", auth, (req, res) => {
+  log.debug("/api/profile/details====================>", req.userId);
+  var userId;
+  if (req.body.userId) {
+    userId = req.body.userId;
+  } else {
+    userId = req.userId;
+  }
+
+  crudController
+    .getBy(DoctorsAwards, {
+      userId: userId
+    })
+    .then((awardRes) => {
+      crudController
+        .getBy(DoctorsQualification, {
+          doctorId: userId
+        })
+        .then((qulRes) => {
+          crudController
+            .getBy(DoctorsSpecialization, {
+              doctorId: userId
+            })
+            .then((splRes) => {
+              crudController
+                .getBy(DoctorsTreatments, {
+                  doctorId: userId
+                })
+                .then((treRes) => {
+                  crudController
+                    .getBy(DoctorsSymptoms, {
+                      doctorId: userId
+                    })
+                    .then((symRes) => {
+                      crudController.getBy(User, {
+                        _id: userId
+                      }).then(userRes => {
+                        response.successResponse(res, 200, {
+                          userRes,
+                          splRes,
+                          qulRes,
+                          awardRes,
+                          treRes,
+                          symRes
+                        });
+                      }).catch((error) => {
+                        log.error(error.code);
+                        response.errorResponse(res, parseInt(error.code));
+                      });
+                    })
+                    .catch((error) => {
+                      log.error(error.code);
+                      response.errorResponse(res, parseInt(error.code));
+                    });
+                })
+                .catch((error) => {
+                  log.error(error.code);
+                  response.errorResponse(res, parseInt(error.code));
+                });
+            })
+            .catch((error) => {
+              log.error(error.code);
+              response.errorResponse(res, parseInt(error.code));
+            });
+        })
+        .catch((error) => {
+          log.error(error.code);
+          response.errorResponse(res, parseInt(error.code));
+        });
+    })
+    .catch((error) => {
+      log.error(error.code);
+      response.errorResponse(res, parseInt(error.code));
+    });
+});
+
+
+router.post("/get/admin/add/slots/acc", auth, (req, res) => {
+  var userId;
+  if (req.body.userId) {
+    userId = req.body.userId;
+  } else {
+    userId = req.userId;
+  }
+  crudController
+    .getBy(Slots, {
+      userId: userId
+    })
+    .then((slotData) => {
+      crudController.getBy(UsersAccounts, {
+        userId: userId
+      }).then(accRes => {
+        crudController.getBy(User, {
+          _id: userId
+        }).then(userRes => {
+          response.successResponse(res, 200, {
+            userRes,
+            accRes,
+            slotData
+          });
+        }).catch((error) => {
+          log.error(error);
+          response.errorResponse(res, 500);
+        });
+      }).catch((error) => {
+        log.error(error);
+        response.errorResponse(res, 500);
+      });
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
 module.exports = router;

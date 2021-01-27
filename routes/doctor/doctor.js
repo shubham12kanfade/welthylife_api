@@ -436,7 +436,6 @@ router.get("/profile/percentage", auth, (req, res) => {
       response.errorResponse(res, 500);
     });
 });
-
 router.post("/admin/add/q/s/a/reg", auth, (req, res) => {
   var awardObj = [];
   var qualifyArray = []
@@ -500,7 +499,7 @@ router.post("/admin/add/q/s/a/reg", auth, (req, res) => {
       });
     });
     crudController.deleteMulti(DoctorsAwards, {
-      doctorId: userId
+      userId: userId
     }).then((delAwardRes) => {
       crudController
         .insertMultiple(DoctorsAwards, awardObj)
@@ -809,7 +808,6 @@ router.post("/get/admin/add/q/s/a/reg", auth, (req, res) => {
       response.errorResponse(res, parseInt(error.code));
     });
 });
-
 
 router.post("/get/admin/add/slots/acc", auth, (req, res) => {
   var userId;

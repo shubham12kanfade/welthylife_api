@@ -14,6 +14,10 @@ const MemberTimings = new Schema({
     type: mongoose.Types.ObjectId,
     ref: "Location",
   },
+  status : {
+    type : String,
+    default : "active"
+  },
   day: String,
   timing : Array
   // morningSlot: {

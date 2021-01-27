@@ -118,11 +118,9 @@ const User = new Schema({
     country: String,
     lat: {
       type: String,
-      require: true,
     },
     lng: {
       type: String,
-      require: true,
     },
   },
   status: {

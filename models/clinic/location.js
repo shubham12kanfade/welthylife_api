@@ -19,11 +19,9 @@ const Location = new Schema({
         country: String,
         lat: {
             type: String,
-            require: true
         },
         lng: {
             type: String,
-            require: true
         },
     },
     facilities: Array,

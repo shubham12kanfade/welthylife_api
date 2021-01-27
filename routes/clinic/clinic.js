@@ -97,7 +97,7 @@ router.get("/by/doctor/:doctorId", (req, res) => {
 router.delete("/delete/by/:id", auth, (req, res) => {
   log.debug("/api/");
   crudController
-    .deletePerm(Clinic, req.params.id)
+    .delete(Clinic, req.params.id)
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })

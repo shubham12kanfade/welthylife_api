@@ -1,0 +1,18 @@
+<form action="/payment/purchase" method="POST" id="payNow" name="payNow">
+    <script src="https://checkout.razorpay.com/v1/checkout.js" data-key="rzp_test_WRtvrN6I5Un56X" data-amount={{amount}}
+        data-buttontext="Pay with Razorpay" data-name="cash" data-description="Purchase Description"
+        data-image="https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072823__340.jpg"
+        data-prefill.name="saikat chakrabortty" data-prefill.email="support@razorpay.com" data-theme.color="#4f7ecc"
+        data-order_id={{order_id}}></script>
+
+    <input type="hidden" value="{{_id}}" name="id" , id="id">
+</form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.razorpay-payment-button').css('display', 'none')
+        $('.razorpay-payment-button').submit();
+    })
+
+
+</script>

@@ -93,12 +93,10 @@ router.post("/web/doctors/timing", auth, (req, res) => {
     });
 });
 
-router.put("/update/by:id", (req, res) => {
+router.put("/update/by/:id", (req, res) => {
   log.debug("/api/");
   crudController
-    .updateBy(MemberTimings, {
-      _id: req.paramsms.id
-    }, req.body)
+    .updateBy(MemberTimings, req.params.id, req.body)
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })
@@ -108,10 +106,10 @@ router.put("/update/by:id", (req, res) => {
     });
 });
 
-router.post("/delete/by/:id", auth, (req, res) => {
+router.delete("/delete/by/:id", auth, (req, res) => {
   log.debug("/api/");
   crudController
-    .delete(ClinicLocation, req.body)
+    .delete(MemberTimings, req.params.id)
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })
@@ -121,22 +119,24 @@ router.post("/delete/by/:id", auth, (req, res) => {
     });
 });
 
-router.get("/clinic/details/:id", (req, res) => {
-  log.debug("/api/");
-  // crudController
-  //   .getRecordByPopulate(MemberTimings, {
-  //     clinicId: req.params.id
-  //   }, ["clinicId", "locationId"])
-  MemberTimings.find({
-      $and: [{
-        clinicId: req.params.id
-      }, {
-        status: {
-          $ne: "deleted"
-        }
-      }]
-    }).populate(["clinicId", "locationId"])
+router.post("/clinic/details", (req, res) => {
+  log.debug("/api/" );
+
+  var obj 
+  if(req.body.clinicId){
+    obj = {
+      clinicId : req.body.clinicId
+    }
+  }
+  else{
+    obj = {
+      doctorId : req.body.doctorId
+    }
+  }
+    crudController
+    .getRecordByPopulate(MemberTimings,obj, ["clinicId", "locationId"])
     .then((userData) => {
+      console.log("=========>userData")
       response.successResponse(res, 200, userData);
     })
     .catch((error) => {

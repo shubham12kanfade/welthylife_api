@@ -58,7 +58,6 @@ module.exports = {
 
   getAllOfHead: (userId) => {
     return new Promise(function (resolve, reject) {
-      
       ChatHead.aggregate([
         {
           $match: {

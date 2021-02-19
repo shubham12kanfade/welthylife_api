@@ -57,11 +57,6 @@ router.put("/update/by:id", (req, res) => {
             response.errorResponse(res, 500);
         });
 });
-
-
-
-
-
 router.post("/delete/by/:id", auth, (req, res) => {
     log.debug("/api/");
     crudController

@@ -20,7 +20,6 @@ router.post("/add", (req, res) => {
         logMessage: "prtient clicked on book appoinment",
         logObject: req.body,
       };
-      logController.add(log);
       response.successResponse(res, 200, resData);
     })
     .catch((error) => {
@@ -119,25 +118,29 @@ router.delete("/by/:id", (req, res) => {
 
 router.get("/by/money/:doctorId", (req, res) => {
   log.debug("/api/profile/details");
-  Appoinment.aggregate([
-    {
-      $match: {
-        $and: [
-          { doctor: mongoose.Types.ObjectId(req.params.doctorId) },
-          { isPaymentDone: true },
-        ],
-      },
-    },
-    {
-      $group: {
-        _id: "$doctor",
-        monthly: { $first: "$ammount" },
-        totalAmmount: {
-          $sum: "$ammount",
+  Appoinment.aggregate([{
+        $match: {
+          $and: [{
+              doctor: mongoose.Types.ObjectId(req.params.doctorId)
+            },
+            {
+              isPaymentDone: true
+            },
+          ],
         },
       },
-    },
-  ])
+      {
+        $group: {
+          _id: "$doctor",
+          monthly: {
+            $first: "$ammount"
+          },
+          totalAmmount: {
+            $sum: "$ammount",
+          },
+        },
+      },
+    ])
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })

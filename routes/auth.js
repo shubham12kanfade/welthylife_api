@@ -25,10 +25,12 @@ router.post("/register", (req, res) => {
     authController
       .register(req.body)
       .then((resData) => {
+        console.log("===>>>>>1")
         var otp = otpHelper.generateOTP();
         var encryptedEmail = md5(req.body.email);
         log.debug("otp", otp, encryptedEmail);
         resData.otp = otp;
+        // response.successResponse(res, 200, resData)
         commonController
           .updateBy(user, resData._id, {
             otp: otp,
@@ -38,14 +40,12 @@ router.post("/register", (req, res) => {
             sms(req.body.mobileNumber, otp)
               .then((resOTP) => {
                 console.log("resData", resData);
-
                 response.successResponse(res, 200, resData);
                 var mailConfig = {
                   from: config.auth.user,
                   email: req.body.email,
                   subject: "Verify your mail",
-                  out:
-                    "hi, <a href='" +
+                  out: "hi, <a href='" +
                     config.emailVerifyURL +
                     encryptedEmail +
                     "'>click here</a> to verify your mail",
@@ -214,12 +214,16 @@ router.get("/resend/otp/:mobile", (req, res) => {
   console.log("/resend/otp/:mobile", req.params.mobile);
   if (req.params.mobile) {
     commonController
-      .getOne(user, { mobileNumber: req.params.mobile })
+      .getOne(user, {
+        mobileNumber: req.params.mobile
+      })
       .then((resData) => {
         if (resData) {
           var otp = otpHelper.generateOTP();
           commonController
-            .updateBy(user, resData._id, { otp: otp })
+            .updateBy(user, resData._id, {
+              otp: otp
+            })
             .then((updatedOTP) => {
               sms(req.params.mobile, otp)
                 .then((resOTP) => {
@@ -257,17 +261,18 @@ router.get("/resend/email/:email", (req, res) => {
   if (req.params.email) {
     commonController
       .updateWithObject(
-        user,
-        { email: req.params.email },
-        { encryptedEmail: encryptedEmail }
+        user, {
+          email: req.params.email
+        }, {
+          encryptedEmail: encryptedEmail
+        }
       )
       .then((updatedOTP) => {
         var mailConfig = {
           from: config.auth.user,
           email: req.params.email,
           subject: "Verify your mail",
-          out:
-            "hi, <a href='" +
+          out: "hi, <a href='" +
             config.emailVerifyURL +
             encryptedEmail +
             "'>click here</a> to verify your mail",
@@ -364,7 +369,10 @@ router.post("/forgot/password", (req, res) => {
           console.log("tenMin", tenMin);
           var otp = otpHelper.generateOTP();
           commonController
-            .updateBy(user, resData._id, { otp: otp, otpExpires: tenMin })
+            .updateBy(user, resData._id, {
+              otp: otp,
+              otpExpires: tenMin
+            })
             .then((updatedOTP) => {
               sms(req.body.email, otp)
                 .then((resOTP) => {
@@ -392,19 +400,23 @@ router.post("/forgot/password", (req, res) => {
         response.errorMsgResponse(res, 301, error);
       });
   } else {
-    commonController.getOne(user, { email: req.body.email }).then((resData) => {
+    commonController.getOne(user, {
+      email: req.body.email
+    }).then((resData) => {
       if (resData) {
         var otp = otpHelper.generateOTP();
         var tenMin = moment().add(10, "minutes");
         commonController
-          .updateBy(user, resData._id, { otp: otp, otpExpires: tenMin })
+          .updateBy(user, resData._id, {
+            otp: otp,
+            otpExpires: tenMin
+          })
           .then((updatedOTP) => {
             var mailConfig = {
               from: config.auth.user,
               email: req.body.email,
               subject: "Reset Password for WhealthyLife",
-              out:
-                "hi, for resetting password your OTP is " +
+              out: "hi, for resetting password your OTP is " +
                 otp +
                 ". This OTP will expires after 10 minutes.",
             };
@@ -436,17 +448,23 @@ router.post("/update/password", (req, res) => {
   var now = moment();
   if (isNumeric(req.body.email)) {
     obj = {
-      $and: [
-        { mobileNumber: req.body.email },
-        { otp: req.body.otp },
+      $and: [{
+          mobileNumber: req.body.email
+        },
+        {
+          otp: req.body.otp
+        },
         // { otpExpires: { $gte: now } },
       ],
     };
   } else {
     obj = {
-      $and: [
-        { email: req.body.email },
-        { otp: req.body.otp },
+      $and: [{
+          email: req.body.email
+        },
+        {
+          otp: req.body.otp
+        },
         // { otpExpires: { $gte: now } },
       ],
     };

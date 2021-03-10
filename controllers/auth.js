@@ -19,6 +19,7 @@ module.exports = {
         $or: [{ email: data.email }, { mobileNumber: data.mobileNumber }],
       })
         .then((resUser) => {
+          console.log("===>>>" , resUser)
           if (resUser) {
             reject(ERRORS.USER_ALREADY_REGISTERED);
           } else {

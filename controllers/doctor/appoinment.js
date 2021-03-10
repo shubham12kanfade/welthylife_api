@@ -17,28 +17,31 @@ module.exports = {
         .then(async (resData) => {
           resolve(resData);
           var petientData, drData;
-          petientData = await User.find({ _id: resData.petient });
-          drData = await User.find({ _id: resData.doctor });
+          petientData = await User.find({
+            _id: resData.petient
+          });
+          drData = await User.find({
+            _id: resData.doctor
+          });
           var PfName, PlName, Pemel, Pavatar, Pid;
           petientData.forEach((element) => {
             (PfName = element.firstName),
-              (PlName = element.lastName),
-              (Pemel = element.email),
-              (Pavatar = element.avatar),
-              (Pid = element._id);
+            (PlName = element.lastName),
+            (Pemel = element.email),
+            (Pavatar = element.avatar),
+            (Pid = element._id);
           });
 
           var DfName, DlName, Demel, Davatar, Did;
           drData.forEach((element) => {
             (DfName = element.firstName),
-              (DlName = element.lastName),
-              (Demel = element.email);
+            (DlName = element.lastName),
+            (Demel = element.email);
             (Davatar = element.avatar), (Did = element._id);
           });
 
           let petientMsg = {
-            message:
-              "your Appoinment is set on " +
+            message: "your Appoinment is set on " +
               resData.date +
               " at " +
               resData.time +
@@ -51,8 +54,7 @@ module.exports = {
           global.socketIo.emit("petientKey", petientMsg);
 
           let drMsg = {
-            message:
-              "your have new appoinment on " +
+            message: "your have new appoinment on " +
               resData.date +
               " at " +
               resData.time +
@@ -68,8 +70,7 @@ module.exports = {
             from: config.auth.user,
             email: Pemel,
             subject: "Your Appoinment is Set",
-            out:
-              "hi, " +
+            out: "hi, " +
               PfName +
               " " +
               PlName +
@@ -90,8 +91,7 @@ module.exports = {
             from: config.auth.user,
             email: Demel,
             subject: "You have an Appoinment",
-            out:
-              "hi, Dr." +
+            out: "hi, Dr." +
               DfName +
               " " +
               DlName +
@@ -152,17 +152,31 @@ module.exports = {
 
       console.log("today===============>", today);
       Appoinment.find({
-        $and: [{ doctor: id }, { date: today }],
-      })
+          $and: [{
+            doctor: id
+          }, {
+            date: today
+          }],
+        })
         .populate("petient")
-        .sort({ time: -1 })
+        .sort({
+          time: -1
+        })
         .then((todayData) => {
           Appoinment.find({
-            $and: [{ doctor: id }, { date: { $gte: week } }],
-          })
+              $and: [{
+                doctor: id
+              }, {
+                date: {
+                  $gte: week
+                }
+              }],
+            })
             .populate("petient")
             .then((weekData) => {
-              Appoinment.find({ doctor: id })
+              Appoinment.find({
+                  doctor: id
+                })
                 .populate("petient")
                 .then((AllData) => {
                   resolve({
@@ -191,8 +205,10 @@ module.exports = {
     return new Promise(function (resolve, reject) {
       var time = moment().add(10, "minutes").format("HH:mm");
       console.log("time", time);
-      
-      Appoinment.find({ time: time })
+
+      Appoinment.find({
+          time: time
+        })
         .then((resData) => {
           resolve(resData);
         })

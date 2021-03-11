@@ -61,3 +61,4 @@ require("./product/productSubCatagories");
 require("./userAddresses");
 
 require("./healthFeeds");
+require("./contact");

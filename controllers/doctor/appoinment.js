@@ -66,47 +66,47 @@ module.exports = {
           };
           global.socketIo.emit("drKey", drMsg);
 
-          var mailConfig = {
-            from: config.auth.user,
-            email: Pemel,
-            subject: "Your Appoinment is Set",
-            out: "hi, " +
-              PfName +
-              " " +
-              PlName +
-              " your appoinment is set with Dr." +
-              DlName +
-              " kindly check the app for details ",
-          };
-          mail
-            .sendMail(mailConfig)
-            .then((resMail) => {
-              log.info(resMail);
-            })
-            .catch((error) => {
-              log.error(error);
-            });
+          // var mailConfig = {
+          //   from: config.auth.user,
+          //   email: Pemel,
+          //   subject: "Your Appoinment is Set",
+          //   out: "hi, " +
+          //     PfName +
+          //     " " +
+          //     PlName +
+          //     " your appoinment is set with Dr." +
+          //     DlName +
+          //     " kindly check the app for details ",
+          // };
+          // mail
+          //   .sendMail(mailConfig)
+          //   .then((resMail) => {
+          //     log.info(resMail);
+          //   })
+          //   .catch((error) => {
+          //     log.error(error);
+          //   });
 
-          var mailCon = {
-            from: config.auth.user,
-            email: Demel,
-            subject: "You have an Appoinment",
-            out: "hi, Dr." +
-              DfName +
-              " " +
-              DlName +
-              " you have a new appoinment with Mr." +
-              PlName +
-              " kindly check the app for details ",
-          };
-          mail
-            .sendMail(mailCon)
-            .then((resMail) => {
-              log.info(resMail);
-            })
-            .catch((error) => {
-              log.error(error);
-            });
+          // var mailCon = {
+          //   from: config.auth.user,
+          //   email: Demel,
+          //   subject: "You have an Appoinment",
+          //   out: "hi, Dr." +
+          //     DfName +
+          //     " " +
+          //     DlName +
+          //     " you have a new appoinment with Mr." +
+          //     PlName +
+          //     " kindly check the app for details ",
+          // };
+          // mail
+          //   .sendMail(mailCon)
+          //   .then((resMail) => {
+          //     log.info(resMail);
+          //   })
+          //   .catch((error) => {
+          //     log.error(error);
+          //   });
         })
         .catch((error) => {
           console.log("error", error);

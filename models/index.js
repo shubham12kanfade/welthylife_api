@@ -62,3 +62,4 @@ require("./userAddresses");
 
 require("./healthFeeds");
 require("./contact");
+require("./medicine/medicine");

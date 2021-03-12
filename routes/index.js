@@ -44,6 +44,7 @@ module.exports = (app) => {
   let clinicfacilities = require("./clinic/clinicFacilities");
   let paymentRoute = require("./payment/payment");
   let contactRoute = require("./contact");
+  let medicineRoute = require("./medicine/medicine");
 
   //=========PRODUCTS=============
   let product = require("./products/products");
@@ -97,4 +98,5 @@ module.exports = (app) => {
   app.use("/api/v1/clinicFfacilities", clinicfacilities);
   app.use("/api/v1/payment", paymentRoute);
   app.use("/api/v1/contact", contactRoute);
+  app.use("/api/v1/medicine", medicineRoute)
 };

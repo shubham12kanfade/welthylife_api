@@ -345,8 +345,8 @@ router.post("/validate/nightSlot", auth, (req, res) => {
     });
 })
 
-router.get("/:userId", auth, (req, res) => {
-  log.debug("/api/profile/details");
+router.get("/by/:userId", auth, (req, res) => {
+  log.debug("/api/get/slots");
   crudController
     .getBy(Slots, {
       userId: req.params.userId
@@ -402,5 +402,7 @@ router.put("/by/:id", (req, res) => {
       response.errorResponse(res, 500);
     });
 });
+
+
 
 module.exports = router;

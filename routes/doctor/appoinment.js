@@ -5,6 +5,7 @@ const response = require("../../helper/response");
 const mongoose = require("mongoose");
 const log = require("../../helper/logger");
 const Appoinment = mongoose.model("Appoinment");
+const Appoinments = require("../../models/doctor/appoinments")
 const appoinmentController = require("../../controllers/doctor/appoinment");
 let auth = require("../../helper/auth");
 let _ = require("lodash");
@@ -150,4 +151,20 @@ router.get("/by/money/:doctorId", (req, res) => {
     });
 });
 
+
+router.get("/by/:id", (req, res) => {
+  log.debug("/api/appoiment/");
+  crudController
+    .getRecordByPopulates(Appoinment, {
+      _id: req.params.id
+    }, "petient")
+    .then((resData) => {
+      console.log("==>>", resData)
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
 module.exports = router;

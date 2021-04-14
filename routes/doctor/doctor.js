@@ -334,8 +334,14 @@ router.put("/update/my/profile", auth, (req, res) => {
   crudController
     .updateBy(User, req.userId, doctorData)
     .then((userData) => {
-      console.log("userData==========", userData);
-      response.successResponse(res, 200, userData);
+      crudController.getOne(User, {
+        _id: userData._id
+      }).then((resData) => {
+        response.successResponse(res, 200, resData);
+      }).catch((error) => {
+        log.error(error);
+        response.errorResponse(res, 500);
+      });
     })
     .catch((error) => {
       log.error(error);

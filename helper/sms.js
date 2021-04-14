@@ -19,7 +19,7 @@ module.exports = function (mobileNumber, otp) {
 
     var options = {
       method: "POST",
-      url: "http://alerts.preconetindia.com/api/v4/?api_key=A2ca796d4fde98fb49ae9a890dca9f9d7&method=sms&message=" + otp + "sms&to=" + mobileNumber + " is your one time password for WealthyLife. This OTP will expire after 10 minutes" + "&sender=BULKSMS",
+      url: "http://alerts.preconetindia.com/api/v4/?api_key=A10d1792bc87d2fd856fee220d1d70f3f&method=sms&message=" + otp + "is the OTAC(One Time Authentication Code) for Doctor Visit. DO NOT SHARE IT WITH ANYONE. Regards - Whealthylife" + "sms&to=" + mobileNumber + "&sender=OTPAIR"
     }
     request(options, function (error, response, body) {
       if (error) {

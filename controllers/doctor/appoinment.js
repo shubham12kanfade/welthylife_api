@@ -218,4 +218,22 @@ module.exports = {
         });
     });
   },
+
+  getRecordByPopulate: (id) => {
+    return new Promise(function (resolve, reject) {
+      Appoinment.findOne({
+          _id: id
+        })
+        .populate("doctor")
+        .populate("petient")
+        .then((resData) => {
+          console.log(resData)
+          resolve(resData);
+        })
+        .catch((error) => {
+          console.log("error", error);
+          reject(error);
+        });
+    });
+  },
 };

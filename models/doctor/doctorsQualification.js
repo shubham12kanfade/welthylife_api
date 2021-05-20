@@ -8,7 +8,7 @@ const DoctorsQualification = new Schema(
       ref: "User",
     },
     qualificationId: {
-      type: String,
+      type:  mongoose.Types.ObjectId,
       ref: "Qualification",
     },
     completionYear: String,

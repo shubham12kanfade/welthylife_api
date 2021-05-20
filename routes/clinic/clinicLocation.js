@@ -52,7 +52,7 @@ router.post("/add", (req, res) => {
     });
 });
 
-router.post("/add/web/location", auth ,(req, res) => {
+router.post("/add/web/location", auth, (req, res) => {
   req.body["clinicId"] = req.userId
   crudController
     .add(Location, req.body)
@@ -132,6 +132,5 @@ router.get("/by/clinicId/:id", auth, (req, res) => {
       response.errorResponse(res, 500);
     });
 });
-
 
 module.exports = router;

@@ -3,12 +3,20 @@ const mongoose = require("mongoose"),
 
 const ProfileMaster = new Schema(
   {
-    icon: String,
+    icon: [
+      {
+        type : String
+      }
+    ],
     title: String,
     CTA: String,
+    discountCTA :String,
+    discountedCTA  :String,
     duration: String,
     details: String,
     precautions: String,
+    whatIsThisTest :String,
+    understandingTestResult:String,
     status: {
       type: String,
       default: "active",

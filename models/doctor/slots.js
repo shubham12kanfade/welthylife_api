@@ -14,6 +14,7 @@ const Slots = new Schema({
     type: mongoose.Types.ObjectId,
     ref: "Clinic",
   },
+  duration : Number,
   dayAndDate: String,
   startTime: String,
   endTime: String,

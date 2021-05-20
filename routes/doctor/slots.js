@@ -10,6 +10,9 @@ const Slots = mongoose.model("Slots");
 let auth = require("../../helper/auth");
 let _ = require("lodash");
 var moment = require("moment");
+const {
+  split
+} = require("lodash");
 router.post("/", (req, res) => {
   var userId;
   if (req.body.userId) {
@@ -486,7 +489,6 @@ router.post("/getSlotBy", auth, (req, res) => {
     });
 });
 
-
 router.post("/add/same/slots", auth, (req, res) => {
   log.debug("/api/add/same/slots")
   var userId;
@@ -517,29 +519,42 @@ router.post("/add/same/slots", auth, (req, res) => {
         })
       });
     });
-    var deleteObj = {
-      $and: [{
-          doctorId: userId
-        },
-        {
-          dayAndDate: {
-            $in: arr2.dayAndDate
-          }
-        }
-      ]
+    // var deleteObj = {
+    //   $and: [{
+    //       doctorId: userId
+    //     },
+    //     {
+    //       dayAndDate: {
+    //         $in: arr2.dayAndDate
+    //       }
+    //     }
+    //   ]
+    // }
+    var deleteObj = []
+    for (let i = 0; i < req.body.mainArray.length; i++) {
+      deleteObj[i] = {
+        doctorId: req.userId,
+        dayAndDate: req.body.mainArray[i]
+      }
     }
-    console.log("==>" , deleteObj)
-    crudController.deleteMulti(Slots, deleteObj).then((delData) => {
-      console.log("=====>>>" , delData)
-      crudController
-        .insertMultiple(Slots, arr2)
-        .then((slotData) => {
-          response.successResponse(res, 200, slotData);
-        })
-        .catch((error) => {
-          log.error(error);
-          response.errorResponse(res, 500);
-        });
+
+    const resObj = {
+      ...deleteObj
+    }
+
+    console.log(deleteObj.doctorId)
+    // var resObj = Object.assign({}, deleteObj);
+    crudController.getBy(Slots, resObj).then((delData) => {
+      console.log("=====>>>", delData)
+      // crudController
+      //   .insertMultiple(Slots, arr2)
+      //   .then((slotData) => {
+      response.successResponse(res, 200, delData);
+      //   })
+      //   .catch((error) => {
+      //     log.error(error);
+      //     response.errorResponse(res, 500);
+      //   });
     }).catch((error) => {
       log.error(error);
       response.errorResponse(res, 500);
@@ -549,5 +564,80 @@ router.post("/add/same/slots", auth, (req, res) => {
     response.errorResponse(res, 500);
   })
 });
+
+router.post("/get/time/intervals", (req, res) => {
+  const splitTime = (startTime, endTime, interval) => {
+    const result = [startTime.toString()];
+    let time = startTime.add(interval, 'm');
+    while (time.isBetween(startTime, endTime, undefined, [])) {
+      result.push(time.toString());
+      time = time.add(interval, 'm');
+    }
+    return result;
+  }
+
+
+  const obj = {
+    dayAndDate: req.body.dayAndDate,
+    doctorId: req.body.doctorId
+  }
+
+  var s1, s2, s3, s4, t1, t2, t3, t4
+  crudController.getOne(Slots, obj).then((resData) => {
+    s1 = resData.startTime.split(":")
+    t1 = s1[0]
+    s2 = s1[1].split(" ")
+    t2 = s2[0]
+    s3 = resData.endTime.split(":")
+    t3 = s3[0]
+    s4 = s3[1].split(" ")
+    t4 = s4[0]
+    console.log(t1, t2, t3, t4)
+
+    const interval = resData.duration;
+    const startTime = moment({
+      hour: t1,
+      minute: t2
+    });
+    console.log("startTime", startTime)
+    const endTime = moment({
+      hour: t3,
+      minute: t4
+    });
+    console.log("=====>>>>>>", startTime, endTime, interval)
+    const timeSlices = splitTime(startTime, endTime, interval);
+
+    // For printing out the intervals 
+    var timeArray = []
+    for (let i = 0; i < timeSlices.length - 1; i++) {
+
+      timeArray.push(moment(timeSlices[i]).format("hh:mm A") + " - " + moment(timeSlices[i + 1]).format("hh:mm A"))
+    }
+    response.successResponse(res, 200, {
+      resData,
+      timeArray
+    })
+  }).catch((error) => {
+    response.errorMsgResponse(res, 301, error)
+  })
+
+
+
+  // You change these values according to your needs
+
+  // const interval = 15;
+  // const startTime = moment({hour:t1,minute:t2});
+  // console.log("startTime" , startTime)
+  // const endTime = moment({hour:t3, minute:t4});
+
+  // const timeSlices = splitTime(startTime,endTime,interval); 
+
+  // // For printing out the intervals 
+  // var timeArray =[]
+  // for(let i=0;i<timeSlices.length-1;i++){
+  //   timeArray.push(timeSlices[i]+" - "+timeSlices[i+1])
+  // }
+  // response.successResponse(res , 200 , timeArray)
+})
 
 module.exports = router;

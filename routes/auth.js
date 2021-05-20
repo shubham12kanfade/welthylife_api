@@ -12,12 +12,14 @@ const _ = require("lodash");
 const mongoose = require("mongoose");
 const user = mongoose.model("User");
 const Token = mongoose.model("Token");
+const Location = mongoose.model("Location");
 var config = require("../config.json");
 var md5 = require("md5");
 var moment = require("moment");
 
 const bcrypt = require("bcrypt");
 const auth = require("../controllers/auth");
+const crudController = require("../controllers/commonController/crudController");
 const saltRounds = 10;
 
 router.post("/register", (req, res) => {
@@ -535,4 +537,809 @@ router.post("/verify/otp", (req, res) => {
     });
 });
 
+
+router.get("/get/location/regex/:search", (req, res) => {
+  var search = req.params.search;
+ 
+  Location.aggregate([{
+        $match: {
+          city: {
+            $regex: search,
+            $options: "i",
+          }
+        },
+      },
+      {
+        $lookup: {
+          from: "clinics",
+          localField: "clinicId",
+          foreignField: "_id",
+          as: "clinic"
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "doctorId",
+          foreignField: "_id",
+          as: "doctor"
+        }
+      },
+      {
+        $group: {
+          // _id: "$_id",
+          _id: "$city"
+          // $group: {
+          //   city: "$_city"
+          // }
+          // city: "$city",
+          // standardId: {
+          //   $first: "$standardId",
+          // },
+        }
+      }
+      // {
+      //   $lookup: {
+      //     from: "Clinics",
+      //     let: {
+      //       clinicId: "$_id"
+      //     },
+      //     as: "clinics",
+      //     pipeline: [{
+      //       $match: {
+      //         $expr: {
+      //           $or: [{
+      //             $eq: ["$clinicId", "$$clinicId"]
+      //           }]
+      //         },
+      //       },
+      //     }, ],
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     let: {
+      //       doctorId: "$_id"
+      //     },
+      //     as: "doctors",
+      //     pipeline: [{
+      //       $match: {
+      //         $expr: {
+      //           $or: [{
+      //             $eq: ["$doctorId", "$$doctorId"]
+      //           }]
+      //         },
+      //       },
+      //     }, ],
+      //   },
+      // }
+    ])
+
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      response.errorMsgResponse(res, 301, ERRORS.SOMETHING_WENT_WRONG);
+    });
+});
+
+router.get("/get/city", (req, res) => {
+  Location.aggregate([{
+      $group: {
+        _id: "$city"
+      }
+    }])
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      response.errorMsgResponse(res, 301, ERRORS.SOMETHING_WENT_WRONG);
+    });
+});
+
+router.post("/get/doctor/clinic/city", (req, res) => {
+  Location.aggregate([{
+        $match: {
+          $and: [{
+              city: req.body.city
+            },
+            {
+              status: {
+                $ne: "deleted"
+              }
+            }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "doctorId",
+          foreignField: "_id",
+          as: "doctor"
+        }
+      },
+      {
+        $lookup: {
+          from: "doctorsqualifications",
+          localField: "doctor._id",
+          foreignField: "doctorId",
+          as: "qualify"
+        }
+      },
+      {
+        $lookup: {
+          from: "qualifications",
+          localField: "qualify.qualificationId",
+          foreignField: "_id",
+          as: "qualifyRes",
+        },
+      },
+      {
+        $lookup: {
+          from: "doctorsspecializations",
+          localField: "doctor._id",
+          foreignField: "doctorId",
+          as: "specialRes"
+        }
+      },
+      {
+        $lookup: {
+          from: "specializations",
+          localField: "specialRes.specializationId",
+          foreignField: "_id",
+          as: "special",
+        },
+      },
+      // {
+      //   $group:{
+      //     _id : "$_id",
+      //     firstName:"$doctor.firstName",
+      //     // lastName: "$doctor.lastName",
+      //     // avatar: "$doctor.avatar",
+      //     // designation:"$doctor.designation",
+      //   }
+      // }
+      {
+        $project: {
+          "_id": "$_id",
+          "doctorId": {
+            $first: "$doctor._id"
+          },
+          "firstName": {
+            $first: "$doctor.firstName"
+          },
+          "lastName": {
+            $first: "$doctor.lastName"
+          },
+          "avatar": {
+            $first: "$doctor.avatar"
+          },
+          "designation": {
+            $first: "$doctor.designation"
+          },
+          "qualificationId": {
+            $first: "$qualify._id"
+          },
+          "completionYear": {
+            $first: "$qualify.completionYear"
+          },
+          "degree": {
+            $first: "$qualifyRes.degree"
+          },
+          "specializationId": {
+            $first: "$special._id"
+          },
+          "specialization": {
+            $first: "$special.shortName"
+          },
+          "fees": {
+            $first: "$doctor.fees"
+          },
+          "gender": {
+            $first: "$doctor.gender"
+          },
+          "city": "$city"
+        }
+      }
+    ])
+
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      response.errorMsgResponse(res, 301, ERRORS.SOMETHING_WENT_WRONG);
+    });
+});
+
+router.post("/get/by/gender", (req, res) => {
+  var obj = {
+    gender: req.body.gender,
+    designation: "Doctor",
+    status: {
+      $ne: "deleted"
+    }
+  }
+  obj.gender == "" ? delete obj.gender : obj.gender;
+  console.log("==>>", obj)
+  user.aggregate([{
+        $match: obj
+      },
+      {
+        $lookup: {
+          from: "doctorsqualifications",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "qualify"
+        }
+      },
+      {
+        $lookup: {
+          from: "qualifications",
+          localField: "qualify.qualificationId",
+          foreignField: "_id",
+          as: "qualifyRes",
+        },
+      },
+      {
+        $lookup: {
+          from: "locations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "locations",
+        },
+      },
+      {
+        $lookup: {
+          from: "doctorsspecializations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "specialRes"
+        }
+      },
+      {
+        $lookup: {
+          from: "specializations",
+          localField: "specialRes.specializationId",
+          foreignField: "_id",
+          as: "special",
+        },
+      },
+      // {
+      //   $group:{
+      //     _id : "$_id",
+      //     firstName:"$doctor.firstName",
+      //     // lastName: "$doctor.lastName",
+      //     // avatar: "$doctor.avatar",
+      //     // designation:"$doctor.designation",
+      //   }
+      // }
+      {
+        $project: {
+          "_id": "$_id",
+          "doctorId": "$_id",
+          "firstName": "$firstName",
+          "lastName": "$lastName",
+          "avatar": "$avatar",
+          "designation": "$designation",
+          "qualificationId": {
+            $first: "$qualify._id"
+          },
+          "completionYear": {
+            $first: "$qualify.completionYear"
+          },
+          "degree": {
+            $first: "$qualifyRes.degree"
+          },
+          "specializationId": {
+            $first: "$special._id"
+          },
+          "specialization": {
+            $first: "$special.shortName"
+          },
+          "fees": "$fees",
+          "gender": "$gender",
+          "city": {
+            $first: "$locations.city"
+          },
+        }
+      }
+    ])
+
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      response.errorMsgResponse(res, 301, ERRORS.SOMETHING_WENT_WRONG);
+    });
+});
+
+
+router.post("/get/doctor/fees", (req, res) => {
+  user.aggregate([{
+        $match: {
+          $and: [{
+              designation: "Doctor"
+            },
+            {
+              fees: {
+                $lte: req.body.fees
+              }
+            }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: "doctorsqualifications",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "qualify"
+        }
+      },
+      {
+        $lookup: {
+          from: "qualifications",
+          localField: "qualify.qualificationId",
+          foreignField: "_id",
+          as: "qualifyRes",
+        },
+      },
+      {
+        $lookup: {
+          from: "locations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "locations",
+        },
+      },
+      {
+        $lookup: {
+          from: "doctorsspecializations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "specialRes"
+        }
+      },
+      {
+        $lookup: {
+          from: "specializations",
+          localField: "specialRes.specializationId",
+          foreignField: "_id",
+          as: "special",
+        },
+      },
+      // {
+      //   $group:{
+      //     _id : "$_id",
+      //     firstName:"$doctor.firstName",
+      //     // lastName: "$doctor.lastName",
+      //     // avatar: "$doctor.avatar",
+      //     // designation:"$doctor.designation",
+      //   }
+      // }
+      {
+        $project: {
+          "_id": "$_id",
+          "doctorId": "$_id",
+          "firstName": "$firstName",
+          "lastName": "$lastName",
+          "avatar": "$avatar",
+          "designation": "$designation",
+          "qualificationId": {
+            $first: "$qualify._id"
+          },
+          "completionYear": {
+            $first: "$qualify.completionYear"
+          },
+          "degree": {
+            $first: "$qualifyRes.degree"
+          },
+          "specializationId": {
+            $first: "$special._id"
+          },
+          "specialization": {
+            $first: "$special.shortName"
+          },
+          "fees": "$fees",
+          "gender": "$gender",
+          "city": {
+            $first: "$locations.city"
+          },
+        }
+      }
+    ])
+
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      response.errorMsgResponse(res, 301, ERRORS.SOMETHING_WENT_WRONG);
+    });
+});
+
+router.get("/get/doctors", (req, res) => {
+  user.aggregate([{
+        $match: {
+              designation: "Doctor"
+        }
+      },
+      {
+        $lookup: {
+          from: "doctorsqualifications",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "qualify"
+        }
+      },
+      {
+        $lookup: {
+          from: "qualifications",
+          localField: "qualify.qualificationId",
+          foreignField: "_id",
+          as: "qualifyRes",
+        },
+      },
+      {
+        $lookup: {
+          from: "locations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "locations",
+        },
+      },
+      {
+        $lookup: {
+          from: "doctorsspecializations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "specialRes"
+        }
+      },
+      {
+        $lookup: {
+          from: "specializations",
+          localField: "specialRes.specializationId",
+          foreignField: "_id",
+          as: "special",
+        },
+      },
+      // {
+      //   $group:{
+      //     _id : "$_id",
+      //     firstName:"$doctor.firstName",
+      //     // lastName: "$doctor.lastName",
+      //     // avatar: "$doctor.avatar",
+      //     // designation:"$doctor.designation",
+      //   }
+      // }
+      {
+        $project: {
+          "_id": "$_id",
+          "doctorId": "$_id",
+          "firstName": "$firstName",
+          "lastName": "$lastName",
+          "avatar": "$avatar",
+          "designation": "$designation",
+          "qualificationId": {
+            $first: "$qualify._id"
+          },
+          "completionYear": {
+            $first: "$qualify.completionYear"
+          },
+          "degree": {
+            $first: "$qualifyRes.degree"
+          },
+          "specializationId": {
+            $first: "$special._id"
+          },
+          "specialization": {
+            $first: "$special.shortName"
+          },
+          "fees": "$fees",
+          "gender": "$gender",
+          "city": {
+            $first: "$locations.city"
+          },
+        }
+      }
+    ])
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      response.errorMsgResponse(res, 301, ERRORS.SOMETHING_WENT_WRONG);
+    });
+});
+
+router.post("/get/doctor/online", (req, res) => {
+  user.aggregate([{
+        $match: {
+          $and: [{
+              designation: "Doctor"
+            },
+            {
+              isOnline : req.body.online
+            }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: "doctorsqualifications",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "qualify"
+        }
+      },
+      {
+        $lookup: {
+          from: "qualifications",
+          localField: "qualify.qualificationId",
+          foreignField: "_id",
+          as: "qualifyRes",
+        },
+      },
+      {
+        $lookup: {
+          from: "locations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "locations",
+        },
+      },
+      {
+        $lookup: {
+          from: "doctorsspecializations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "specialRes"
+        }
+      },
+      {
+        $lookup: {
+          from: "specializations",
+          localField: "specialRes.specializationId",
+          foreignField: "_id",
+          as: "special",
+        },
+      },
+      // {
+      //   $group:{
+      //     _id : "$_id",
+      //     firstName:"$doctor.firstName",
+      //     // lastName: "$doctor.lastName",
+      //     // avatar: "$doctor.avatar",
+      //     // designation:"$doctor.designation",
+      //   }
+      // }
+      {
+        $project: {
+          "_id": "$_id",
+          "doctorId": "$_id",
+          "firstName": "$firstName",
+          "lastName": "$lastName",
+          "avatar": "$avatar",
+          "designation": "$designation",
+          "qualificationId": {
+            $first: "$qualify._id"
+          },
+          "completionYear": {
+            $first: "$qualify.completionYear"
+          },
+          "degree": {
+            $first: "$qualifyRes.degree"
+          },
+          "specializationId": {
+            $first: "$special._id"
+          },
+          "specialization": {
+            $first: "$special.shortName"
+          },
+          "fees": "$fees",
+          "gender": "$gender",
+          "city": {
+            $first: "$locations.city"
+          },
+        }
+      }
+    ])
+
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      response.errorMsgResponse(res, 301, ERRORS.SOMETHING_WENT_WRONG);
+    });
+});
+
+router.post("/get/doctor/fees/gender", (req, res) => {
+  user.aggregate([{
+        $match: {
+          $and: [{
+              designation: "Doctor"
+            },
+            {
+              fees: {
+                $lte: req.body.fees
+              }
+            },
+            {
+              gender: req.body.gender
+            }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: "doctorsqualifications",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "qualify"
+        }
+      },
+      {
+        $lookup: {
+          from: "qualifications",
+          localField: "qualify.qualificationId",
+          foreignField: "_id",
+          as: "qualifyRes",
+        },
+      },
+      {
+        $lookup: {
+          from: "locations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "locations",
+        },
+      },
+      {
+        $lookup: {
+          from: "doctorsspecializations",
+          localField: "_id",
+          foreignField: "doctorId",
+          as: "specialRes"
+        }
+      },
+      {
+        $lookup: {
+          from: "specializations",
+          localField: "specialRes.specializationId",
+          foreignField: "_id",
+          as: "special",
+        },
+      },
+      // {
+      //   $group:{
+      //     _id : "$_id",
+      //     firstName:"$doctor.firstName",
+      //     // lastName: "$doctor.lastName",
+      //     // avatar: "$doctor.avatar",
+      //     // designation:"$doctor.designation",
+      //   }
+      // }
+      {
+        $project: {
+          "_id": "$_id",
+          "doctorId": "$_id",
+          "firstName": "$firstName",
+          "lastName": "$lastName",
+          "avatar": "$avatar",
+          "designation": "$designation",
+          "qualificationId": {
+            $first: "$qualify._id"
+          },
+          "completionYear": {
+            $first: "$qualify.completionYear"
+          },
+          "degree": {
+            $first: "$qualifyRes.degree"
+          },
+          "specializationId": {
+            $first: "$special._id"
+          },
+          "specialization": {
+            $first: "$special.shortName"
+          },
+          "fees": "$fees",
+          "gender": "$gender",
+          "city": {
+            $first: "$locations.city"
+          },
+        }
+      }
+    ])
+
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      response.errorMsgResponse(res, 301, ERRORS.SOMETHING_WENT_WRONG);
+    });
+});
+
+router.post("/get/locality/city", (req, res) => {
+  var search = req.body.city
+  Location.aggregate([{
+        $match: {
+          $and: [
+            {city: {
+              $regex: search,
+              $options: "i",
+            }},
+            {
+              status: {
+                $ne: "deleted"
+              }
+            }
+          ]
+        }
+      },
+      {
+        $group : {
+          _id : "$locality"
+        }
+      }
+      //       {
+      //   $project: {
+      //     "_id": "$_id",
+      //     "doctorId": {
+      //       $first: "$doctor._id"
+      //     },
+      //     "firstName": {
+      //       $first: "$doctor.firstName"
+      //     },
+      //     "lastName": {
+      //       $first: "$doctor.lastName"
+      //     },
+      //     "avatar": {
+      //       $first: "$doctor.avatar"
+      //     },
+      //     "designation": {
+      //       $first: "$doctor.designation"
+      //     },
+      //     "qualificationId": {
+      //       $first: "$qualify._id"
+      //     },
+      //     "completionYear": {
+      //       $first: "$qualify.completionYear"
+      //     },
+      //     "degree": {
+      //       $first: "$qualifyRes.degree"
+      //     },
+      //     "specializationId": {
+      //       $first: "$special._id"
+      //     },
+      //     "specialization": {
+      //       $first: "$special.shortName"
+      //     },
+      //     "fees": {
+      //       $first: "$doctor.fees"
+      //     },
+      //     "gender": {
+      //       $first: "$doctor.gender"
+      //     },
+      //     "city": "$city"
+      //   }
+      // }
+    ])
+
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      response.errorMsgResponse(res, 301, ERRORS.SOMETHING_WENT_WRONG);
+    });
+});
 module.exports = router;

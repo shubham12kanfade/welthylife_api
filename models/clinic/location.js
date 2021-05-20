@@ -10,19 +10,22 @@ const Location = new Schema({
         type: mongoose.Types.ObjectId,
         ref: 'Clinic'
     },
-    location: {
-        address: String,
-        landmark: String,
-        state: String,
-        city: String,
-        pincode: Number,
-        country: String,
-        lat: {
-            type: String,
-        },
-        lng: {
-            type: String,
-        },
+    doctorId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User'
+    },
+    address: String,
+    landmark: String,
+    locality : String,
+    state: String,
+    city: String,
+    pincode: Number,
+    country: String,
+    lat: {
+        type: String,
+    },
+    lng: {
+        type: String,
     },
     facilities: Array,
     status: {

@@ -10,7 +10,8 @@ const appoinmentController = require("../../controllers/doctor/appoinment");
 let auth = require("../../helper/auth");
 let _ = require("lodash");
 
-router.post("/add", (req, res) => {
+router.post("/add", auth, (req, res) => {
+  req.body["petient"] = req.userId
   log.debug("/api/");
   appoinmentController
     .add(req.body)

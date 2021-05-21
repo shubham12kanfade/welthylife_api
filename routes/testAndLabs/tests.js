@@ -589,9 +589,59 @@ router.post("/search/testByName", (req, res) => {
   log.debug("/api/");
   var search = req.body.search
   crudController
-    .getBy(IndivisualTests, { title: {"$regex": search, $options: "i", }})
+    .getBy(IndivisualTests, {
+      title: {
+        "$regex": search,
+        $options: "i",
+      }
+    })
     .then((resData) => {
       response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
+router.post("/update/arr", (req, res) => {
+  log.debug("/api/");
+  var playlist = req.body.playlist
+  crudController
+    .updateBy(IndivisualTests, req.body.id, {
+      $push: {
+        playlists: playlist
+      },
+    })
+    .then((resData) => {
+      crudController.getOne(IndivisualTests, {
+        _id: req.body.id
+      }).then((data) => {
+        response.successResponse(res, 200, resData);
+      }).catch((error) => {
+        log.error(error);
+        response.errorResponse(res, 500);
+      });
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+router.post("/get/arr", (req, res) => {
+  var obj = {
+    _id: req.body.id,
+    "playlists": {
+      "$elemMatch": {
+        "_id": req.body.playId
+      }
+    }
+  }
+  console.log("obj", obj)
+  crudController
+    .getBy(IndivisualTests, obj)
+    .then((resData) => {
+      response.successResponse(res, 200, resData)
     })
     .catch((error) => {
       log.error(error);

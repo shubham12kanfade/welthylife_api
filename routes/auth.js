@@ -540,7 +540,7 @@ router.post("/verify/otp", (req, res) => {
 
 router.get("/get/location/regex/:search", (req, res) => {
   var search = req.params.search;
- 
+
   Location.aggregate([{
         $match: {
           city: {
@@ -967,7 +967,7 @@ router.post("/get/doctor/fees", (req, res) => {
 router.get("/get/doctors", (req, res) => {
   user.aggregate([{
         $match: {
-              designation: "Doctor"
+          designation: "Doctor"
         }
       },
       {
@@ -1066,7 +1066,7 @@ router.post("/get/doctor/online", (req, res) => {
               designation: "Doctor"
             },
             {
-              isOnline : req.body.online
+              isOnline: req.body.online
             }
           ]
         }
@@ -1272,11 +1272,12 @@ router.post("/get/locality/city", (req, res) => {
   var search = req.body.city
   Location.aggregate([{
         $match: {
-          $and: [
-            {city: {
-              $regex: search,
-              $options: "i",
-            }},
+          $and: [{
+              city: {
+                $regex: search,
+                $options: "i",
+              }
+            },
             {
               status: {
                 $ne: "deleted"
@@ -1286,8 +1287,8 @@ router.post("/get/locality/city", (req, res) => {
         }
       },
       {
-        $group : {
-          _id : "$locality"
+        $group: {
+          _id: "$locality"
         }
       }
       //       {

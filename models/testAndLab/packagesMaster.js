@@ -2,7 +2,11 @@ const mongoose = require("mongoose"),
   Schema = mongoose.Schema;
 
 const PackageMaster = new Schema({
-  icon: String,
+  icon: [{
+    fileURL: {
+      type: String
+    }
+  }],
   title: String,
   CTA: String,
   discountCTA: String,

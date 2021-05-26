@@ -236,18 +236,6 @@ router.delete("/master/:id", (req, res) => {
     });
 });
 
-router.delete("/packagemaster/:id", (req,res) => {
-crudController
-.deletePerm(PackageMaster, req.params.id)
-.then((resData) => {
-  response.successResponse(res, 200, resData);
-})
-.catch((error) => {
-  log.error(error);
-      response.errorResponse(res, 500);
-});
-})
-
 router.post("/add/multiple", auth, (req, res) => {
   var obj = [];
   Array.from(req.body.packagesArray).forEach((ele) => {

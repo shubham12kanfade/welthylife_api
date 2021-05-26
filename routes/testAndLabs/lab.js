@@ -21,19 +21,31 @@ router.get("/get/all", (req, res) => {
 });
 
 router.get("/get/cities", (req, res) => {
-  LabCenter.aggregate([{ $group: { _id: "$city" } }])
+  LabCenter.aggregate([{
+      $group: {
+        _id: "$city"
+      }
+    }])
     .then((resData) => {
-      response.successResponse(res, 200, resData);
+      res.status(200).json({
+        message: "data fetched",
+        status: true,
+        resData
+      })
     })
     .catch((error) => {
-      log.error(error);
-      response.errorResponse(res, 500);
+      res.status(400).json({
+        message: "data fetched",
+        status: false
+      })
     });
 });
 
 router.get("/get/featured", (req, res) => {
   crudController
-    .getBy(Lab, { isFeatured: true })
+    .getBy(Lab, {
+      isFeatured: true
+    })
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -45,7 +57,9 @@ router.get("/get/featured", (req, res) => {
 
 router.get("/get/by/:id", (req, res) => {
   crudController
-    .getBy(Lab, { _id: req.params.id })
+    .getBy(Lab, {
+      _id: req.params.id
+    })
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -83,7 +97,9 @@ router.post("/add/center/details", (req, res) => {
 });
 router.get("/get/center/by/labId/:id", (req, res) => {
   crudController
-    .getBy(LabCenter, { labId: req.params.id })
+    .getBy(LabCenter, {
+      labId: req.params.id
+    })
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -95,7 +111,9 @@ router.get("/get/center/by/labId/:id", (req, res) => {
 
 router.get("/get/center/by/centerId/:id", (req, res) => {
   crudController
-    .getOne(LabCenter, { _id: req.params.id })
+    .getOne(LabCenter, {
+      _id: req.params.id
+    })
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })

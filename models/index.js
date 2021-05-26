@@ -61,3 +61,5 @@ require("./product/productSubCatagories");
 require("./userAddresses");
 
 require("./healthFeeds");
+
+require('./banners/banner.model')

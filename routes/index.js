@@ -49,6 +49,8 @@ module.exports = (app) => {
   let prodSubCat = require("./products/productSubCatagories");
   let userCart = require("./products/usersCart");
 
+  let banner = require('./home/banner.routes')
+
   app.use("/api/v1/authentication", authRoute);
   app.use("/api/v1/uploads", upload);
   app.use("/api/v1/product", product);
@@ -93,4 +95,6 @@ module.exports = (app) => {
   app.use("/api/v1/doctorSymptoms", doctorSymp);
   app.use("/api/v1/facilities", facilities);
   app.use("/api/v1/clinicFfacilities", clinicfacilities);
+
+  app.use("/api/v1/banner", banner);
 };

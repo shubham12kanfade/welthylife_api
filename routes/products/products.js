@@ -112,4 +112,17 @@ router.get("/popular/product", (req, res) => {
     });
 });
 
+router.get("/by/catagoryName", (req, res) => {
+  log.debug("/api/");
+  crudController
+  .getBy(Product, { categoryName: req.body.search})
+  .then((products) => {
+    response.successResponse(res, 200, products);
+  })
+  .catch((error) => {
+    log.error(error);
+    response.errorResponse(res, 500);
+  });
+});
+
 module.exports = router;

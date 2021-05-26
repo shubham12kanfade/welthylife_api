@@ -7,6 +7,7 @@ const Product = new Schema(
       type: mongoose.Types.ObjectId,
       ref: "Catagories",
     },
+    categoryName: String,
     subCatagoryId: {
       type: mongoose.Types.ObjectId,
       ref: "SubCatagories",

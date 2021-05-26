@@ -1,9 +1,9 @@
 const mongoose = require("mongoose"),
   Schema = mongoose.Schema;
 
-const ProfileMaster = new Schema(
+const ProfileMaster = new Schema( 
   {
-    icon: String,
+    icon: [{ id: mongoose.Types.ObjectId, name: String }],
     title: String,
     CTA: String,
     duration: String,

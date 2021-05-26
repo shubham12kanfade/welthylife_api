@@ -582,4 +582,5 @@ router.get("/by/labPackage/:id", (req, res) => {
       response.errorResponse(res, 500);
     });
 });
+
 module.exports = router;

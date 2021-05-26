@@ -3,7 +3,7 @@ const mongoose = require("mongoose"),
 
 const ProfileMaster = new Schema(
   {
-    icon: String,
+    icon: [{ id: mongoose.Types.ObjectId, name: String }],
     title: String,
     CTA: String,
     duration: String,

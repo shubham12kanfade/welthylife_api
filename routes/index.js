@@ -42,12 +42,18 @@ module.exports = (app) => {
   let doctorSymp = require("./doctor/doctorsSymptoms");
   let facilities = require("./clinic/facilities");
   let clinicfacilities = require("./clinic/clinicFacilities");
+  let paymentRoute = require("./payment/payment");
+  let contactRoute = require("./contact");
+  let medicineRoute = require("./medicine/medicine");
+  let receiptRoute = require("./medicine/medicalReceipt");
 
   //=========PRODUCTS=============
   let product = require("./products/products");
   let prodCat = require("./products/productCatagories");
   let prodSubCat = require("./products/productSubCatagories");
   let userCart = require("./products/usersCart");
+
+  let doctorReg = require("./doctor/doctorReg");
 
   app.use("/api/v1/authentication", authRoute);
   app.use("/api/v1/uploads", upload);
@@ -93,4 +99,9 @@ module.exports = (app) => {
   app.use("/api/v1/doctorSymptoms", doctorSymp);
   app.use("/api/v1/facilities", facilities);
   app.use("/api/v1/clinicFfacilities", clinicfacilities);
+  app.use("/api/v1/payment", paymentRoute);
+  app.use("/api/v1/contact", contactRoute);
+  app.use("/api/v1/medicine", medicineRoute)
+  app.use("/api/v1/doctorRegister", doctorReg)
+  app.use("/api/v1/receipt", receiptRoute)
 };

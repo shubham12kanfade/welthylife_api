@@ -35,7 +35,6 @@ module.exports = {
     });
   },
   getBy: (schema, object) => {
-    console.log("object", object);
     return new Promise(function (resolve, reject) {
       schema
         .find({
@@ -148,6 +147,21 @@ module.exports = {
       schema
         .findByIdAndDelete({
           _id: id,
+        })
+        .then((resData) => {
+          resolve(resData);
+        })
+        .catch((error) => {
+          console.log("error", error);
+          reject(error);
+        });
+    });
+  },
+  deleteMulti: (schema, object) => {
+    return new Promise(function (resolve, reject) {
+      schema
+        .deleteMany({
+          ...object,
         })
         .then((resData) => {
           resolve(resData);
@@ -326,6 +340,26 @@ module.exports = {
   },
 
   getRecordByPopulate: (schema, object, populates) => {
+    return new Promise(function (resolve, reject) {
+      schema
+        .find({
+          ...object,
+          status: {
+            $ne: "deleted"
+          }
+        })
+        .populate(populates)
+        .then((resData) => {
+          resolve(resData);
+        })
+        .catch((error) => {
+          console.log("error", error);
+          reject(error);
+        });
+    });
+  },
+  getRecordByPopulates: (schema, object, populates) => {
+    console.log(schema, " ", object, " ", populates)
     return new Promise(function (resolve, reject) {
       schema
         .find({

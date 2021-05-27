@@ -5,11 +5,13 @@ const response = require("../../helper/response");
 const mongoose = require("mongoose");
 const log = require("../../helper/logger");
 const Appoinment = mongoose.model("Appoinment");
+const Appoinments = require("../../models/doctor/appoinments")
 const appoinmentController = require("../../controllers/doctor/appoinment");
 let auth = require("../../helper/auth");
 let _ = require("lodash");
 
-router.post("/add", (req, res) => {
+router.post("/add", auth, (req, res) => {
+  req.body["petient"] = req.userId
   log.debug("/api/");
   appoinmentController
     .add(req.body)
@@ -20,7 +22,6 @@ router.post("/add", (req, res) => {
         logMessage: "prtient clicked on book appoinment",
         logObject: req.body,
       };
-      logController.add(log);
       response.successResponse(res, 200, resData);
     })
     .catch((error) => {
@@ -119,25 +120,29 @@ router.delete("/by/:id", (req, res) => {
 
 router.get("/by/money/:doctorId", (req, res) => {
   log.debug("/api/profile/details");
-  Appoinment.aggregate([
-    {
-      $match: {
-        $and: [
-          { doctor: mongoose.Types.ObjectId(req.params.doctorId) },
-          { isPaymentDone: true },
-        ],
-      },
-    },
-    {
-      $group: {
-        _id: "$doctor",
-        monthly: { $first: "$ammount" },
-        totalAmmount: {
-          $sum: "$ammount",
+  Appoinment.aggregate([{
+        $match: {
+          $and: [{
+              doctor: mongoose.Types.ObjectId(req.params.doctorId)
+            },
+            {
+              isPaymentDone: true
+            },
+          ],
         },
       },
-    },
-  ])
+      {
+        $group: {
+          _id: "$doctor",
+          monthly: {
+            $first: "$ammount"
+          },
+          totalAmmount: {
+            $sum: "$ammount",
+          },
+        },
+      },
+    ])
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -147,4 +152,20 @@ router.get("/by/money/:doctorId", (req, res) => {
     });
 });
 
+
+router.get("/by/:id", (req, res) => {
+  log.debug("/api/appoiment/");
+  crudController
+    .getRecordByPopulates(Appoinment, {
+      _id: req.params.id
+    }, "petient")
+    .then((resData) => {
+      console.log("==>>", resData)
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
 module.exports = router;

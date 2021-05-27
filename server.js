@@ -8,7 +8,7 @@ let cors = require('cors');
 var fbadmin = require("firebase-admin");
 var serviceAccount = require("./serviceAccountKey.json");
 var winston = require('winston');
-
+var swig = require('swig');
 // var firebaseConfig = {
 //     apiKey: "AIzaSyDCFNCZ83Kv9Lz5QLoR-e2PaeQDMLqmpvw",
 //     authDomain: "whealthylife-ae995.firebaseapp.com",
@@ -34,7 +34,10 @@ enableStaticFileServer(app, config.uploadUrl, '/static');
 enableStaticFileServer(app, "/public/admin/", "/");
 app.use(cors());
 require('./routes')(app);
-
+app.set('views', __dirname + '/routes/payment/views');
+var swig = new swig.Swig();
+app.engine('html', swig.renderFile);
+app.set('view engine', 'html');
 database.connect();
 
 fbadmin.initializeApp({

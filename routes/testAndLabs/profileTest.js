@@ -4,6 +4,7 @@ const log = require("../../helper/logger");
 const response = require("../../helper/response");
 const mongoose = require("mongoose");
 const ProfileTests = mongoose.model("ProfileTests");
+const ProfileMaster = mongoose.model("ProfileMaster");
 
 let auth = require("../../helper/auth");
 let _ = require("lodash");
@@ -25,11 +26,13 @@ router.get("/all/by/:profileId", (req, res) => {
   log.debug("/api/");
   crudController
     .getbySortByPopulate(
-      ProfileTests,
-      { profileId: req.params.profileId },
-      {
+      ProfileTests, {
+        profileId: req.params.profileId
+      }, {
         path: "tests",
-        match: { status: "active" },
+        match: {
+          status: "active"
+        },
       }
     )
     .then((testData) => {
@@ -86,4 +89,23 @@ router.post("/add/multiple", (req, res) => {
       response.errorResponse(res, parseInt(error.code));
     });
 });
+
+router.post("/search/profileByName", (req, res) => {
+  log.debug("/api/");
+  var search = req.body.search
+  crudController
+    .getBy(ProfileMaster, {
+      title: {
+        "$regex": search,
+        $options: "i",
+      }
+    })
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+})
 module.exports = router;

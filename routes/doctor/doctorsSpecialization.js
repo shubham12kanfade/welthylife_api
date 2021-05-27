@@ -14,8 +14,9 @@ const DoctorsSpecialization = mongoose.model("DoctorsSpecialization");
 router.get("/all", auth, (req, res) => {
   crudController
     .getbySortByPopulate(
-      DoctorsSpecialization,
-      { doctorId: req.userId },
+      DoctorsSpecialization, {
+        doctorId: req.userId
+      },
       "specializationId"
     )
     .then((resData) => {
@@ -30,8 +31,9 @@ router.get("/all", auth, (req, res) => {
 router.get("/by/specialization/:specializationId", (req, res) => {
   crudController
     .getbySortByPopulate(
-      DoctorsSpecialization,
-      { specializationId: req.params.specializationId },
+      DoctorsSpecialization, {
+        specializationId: req.params.specializationId
+      },
       "doctorId"
     )
     .then((resData) => {
@@ -56,7 +58,9 @@ router.get("/by/specialization/:specializationId", (req, res) => {
 // });
 
 router.post("/add", auth, (req, res) => {
-  DoctorsSpecialization.deleteMany({ doctorId: req.userId })
+  DoctorsSpecialization.deleteMany({
+      doctorId: req.userId
+    })
     .then((resData) => {
       var obj = [];
       Array.from(req.body.specializationArray).forEach((ele) => {

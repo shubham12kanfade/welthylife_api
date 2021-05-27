@@ -21,7 +21,9 @@ router.get("/get/all", (req, res) => {
 
 router.get("/get/by/:id", (req, res) => {
   crudController
-    .getBy(Qualification, { _id: req.params.id })
+    .getBy(Qualification, {
+      _id: req.params.id
+    })
     .then((resData) => {
       response.successResponse(res, 200, resData);
     })
@@ -39,7 +41,7 @@ router.post("/add", (req, res) => {
     })
     .catch((error) => {
       log.error(error.code);
-      response.errorResponse(res, parseInt(error.code));
+      response.errorResponse(res, 301, "Unable to add");
     });
 });
 

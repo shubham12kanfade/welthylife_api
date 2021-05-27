@@ -165,4 +165,18 @@ router.delete("/:id", auth, (req, res) => {
             response.errorResponse(res, 500);
         });
 });
+
+router.post("/search/testByName", (req, res) => {
+    log.debug("/api/");
+    var search = req.body.search
+    crudController
+      .getBy(IndivisualTests, { title: {"$regex": search, $options: "i", }})
+      .then((resData) => {
+        response.successResponse(res, 200, resData);
+      })
+      .catch((error) => {
+        log.error(error);
+        response.errorResponse(res, 500);
+      });
+  });
 module.exports = router;

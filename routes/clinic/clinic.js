@@ -37,6 +37,21 @@ router.put("/update/by/:id", auth, (req, res) => {
     });
 });
 
+router.get("/get/by/:id", (req, res) => {
+  log.debug("/api/");
+  crudController
+    .getOne(Clinic, {
+      _id: req.params.id
+    })
+    .then((userData) => {
+      response.successResponse(res, 200, userData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
 router.get("/by/:id", (req, res) => {
   log.debug("/api/");
   crudController
@@ -51,6 +66,7 @@ router.get("/by/:id", (req, res) => {
       response.errorResponse(res, 500);
     });
 });
+
 
 router.get("/all", (req, res) => {
   log.debug("/api/");
@@ -81,7 +97,7 @@ router.get("/by/doctor/:doctorId", (req, res) => {
 router.delete("/delete/by/:id", auth, (req, res) => {
   log.debug("/api/");
   crudController
-    .deletePerm(Clinic, req.params.id)
+    .delete(Clinic, req.params.id)
     .then((userData) => {
       response.successResponse(res, 200, userData);
     })

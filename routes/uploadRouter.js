@@ -56,8 +56,10 @@ router.post("/", (req, res) => {
       console.log(ele);
       files.push(config.staticFilesUrl + ele.filename);
     });
-    res.send({ status: "SUCCESS", files });
+    res.send({
+      status: "SUCCESS",
+      files
+    });
   });
 });
-
 module.exports = router;

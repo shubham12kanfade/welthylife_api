@@ -92,6 +92,14 @@ const User = new Schema({
   proffession: String,
   registrationProff: String,
   establishmentProff: String,
+  clinicId: {
+    type: mongoose.Types.ObjectId,
+    ref: "Clinic",
+  },
+  locationId: {
+    type: mongoose.Types.ObjectId,
+    ref: "Location",
+  },
   fees: Number,
   establishmentHour: String,
   hours: String,
@@ -110,11 +118,9 @@ const User = new Schema({
     country: String,
     lat: {
       type: String,
-      require: true,
     },
     lng: {
       type: String,
-      require: true,
     },
   },
   status: {

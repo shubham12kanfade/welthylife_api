@@ -9,14 +9,28 @@ router.get("/", (req, res) => {
   response.successResponse(res, 200, csc.getAllCountries());
 });
 
+router.get("/country/:countryId", (req, res) => {
+  response.successResponse(res, 200, csc.getCountryById(req.params.countryId));
+});
+
 router.get("/:id/state", (req, res) => {
   console.log("req.params.id", req.params.id);
   response.successResponse(res, 200, csc.getStatesOfCountry(req.params.id));
 });
 
+router.get("/state/:stateId", (req, res) => {
+  response.successResponse(res, 200, csc.getStateById(req.params.stateId));
+});
+
+
 router.get("/state/:stateId/city", (req, res) => {
   response.successResponse(res, 200, csc.getCitiesOfState(req.params.stateId));
 });
+
+router.get("/city/:cityId", (req, res) => {
+  response.successResponse(res, 200, csc.getCityById(req.params.cityId));
+});
+
 
 router.get("/time/zhone", (req, res) => {
   response.successResponse(res, 200, timeZhone.timezones);

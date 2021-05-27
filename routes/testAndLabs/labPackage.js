@@ -17,7 +17,10 @@ router.post("/master/add", (req, res) => {
     .then((testData) => {
       var obj = [];
       req.body.profileArray.forEach((element) => {
-        obj.push({ packageId: testData._id, profileId: element });
+        obj.push({
+          packageId: testData._id,
+          profileId: element
+        });
       });
       crudController
         .insertMultiple(PackageTest, obj)
@@ -53,7 +56,14 @@ router.put("/master/by/:id", auth, (req, res) => {
   crudController
     .updateBy(PackageMaster, req.params.id, req.body)
     .then((userData) => {
-      response.successResponse(res, 200, userData);
+      crudController.getOne(PackageMaster, {
+        _id: req.params.id
+      }).then((resData) => {
+        response.successResponse(res, 200, resData);
+      }).catch((error) => {
+        log.error(error);
+        response.errorResponse(res, 500);
+      });
     })
     .catch((error) => {
       log.error(error);
@@ -64,103 +74,131 @@ router.put("/master/by/:id", auth, (req, res) => {
 router.get("/master/by/packageId/:id", (req, res) => {
   log.debug("/api/sssssss");
   crudController
-    .getSingleRecordByPopulate(PackageMaster, { _id: req.params.id }, "labId")
+    .getSingleRecordByPopulate(PackageMaster, {
+      _id: req.params.id
+    }, "labId")
     .then((resPkg) => {
-      PackageTest.aggregate([
-        {
-          $match: {
-            packageId: mongoose.Types.ObjectId(req.params.id),
-            status: "active",
+      PackageTest.aggregate([{
+            $match: {
+              packageId: mongoose.Types.ObjectId(req.params.id),
+              status: "active",
+            },
           },
-        },
-        {
-          $lookup: {
-            from: "profilemasters",
-            // localField: "profileId",
-            // foreignField: "_id",
-            let: { id: "$profileId" },
-            as: "packageProfiles",
-            pipeline: [
-              {
+          {
+            $lookup: {
+              from: "profilemasters",
+              // localField: "profileId",
+              // foreignField: "_id",
+              let: {
+                id: "$profileId"
+              },
+              as: "packageProfiles",
+              pipeline: [{
                 $match: {
                   $expr: {
-                    $and: [
-                      { $eq: ["$_id", "$$id"] },
-                      { $eq: ["$status", "active"] },
+                    $and: [{
+                        $eq: ["$_id", "$$id"]
+                      },
+                      {
+                        $eq: ["$status", "active"]
+                      },
                     ],
                   },
                 },
-              },
-            ],
+              }, ],
+            },
           },
-        },
-        { $unwind: "$packageProfiles" },
-        {
-          $lookup: {
-            from: "profiletests",
-            // localField: "profileId",
-            // foreignField: "profileId",
-            let: { profid: "$profileId" },
-            as: "profileTestsIds",
-            pipeline: [
-              {
+          {
+            $unwind: "$packageProfiles"
+          },
+          {
+            $lookup: {
+              from: "profiletests",
+              // localField: "profileId",
+              // foreignField: "profileId",
+              let: {
+                profid: "$profileId"
+              },
+              as: "profileTestsIds",
+              pipeline: [{
                 $match: {
                   $expr: {
-                    $and: [
-                      { $eq: ["$profileId", "$$profid"] },
-                      { $eq: ["$status", "active"] },
+                    $and: [{
+                        $eq: ["$profileId", "$$profid"]
+                      },
+                      {
+                        $eq: ["$status", "active"]
+                      },
                     ],
                   },
                 },
-              },
-            ],
+              }, ],
+            },
           },
-        },
-        { $unwind: "$profileTestsIds" },
-        {
-          $lookup: {
-            from: "testmasters",
-            // localField: "_id",
-            // foreignField: "profileId",
-            let: { testId: "$profileTestsIds.testId" },
-            as: "profileTests",
-            pipeline: [
-              {
+          {
+            $unwind: "$profileTestsIds"
+          },
+          {
+            $lookup: {
+              from: "testmasters",
+              // localField: "_id",
+              // foreignField: "profileId",
+              let: {
+                testId: "$profileTestsIds.testId"
+              },
+              as: "profileTests",
+              pipeline: [{
                 $match: {
                   $expr: {
-                    $and: [
-                      { $eq: ["$_id", "$$testId"] },
-                      { $eq: ["$status", "active"] },
+                    $and: [{
+                        $eq: ["$_id", "$$testId"]
+                      },
+                      {
+                        $eq: ["$status", "active"]
+                      },
                     ],
                   },
                 },
-              },
-            ],
+              }, ],
+            },
           },
-        },
-        { $unwind: "$profileTests" },
-        {
-          $group: {
-            _id: "$profileId",
-            icon: { $first: "$packageProfiles.icon" },
-            title: { $first: "$packageProfiles.title" },
-            CTA: { $first: "$packageProfiles.CTA" },
-            description: { $first: "$packageProfiles.details" },
-            precaution: { $first: "$packageProfiles.precautions" },
-            duration: { $first: "$packageProfiles.duration" },
-            profileTests: {
-              $push: {
-                _id: "$profileTests._id",
-                icon: "$profileTests.icon",
-                title: "$profileTests.title",
-                duration: "$profileTests.duration",
-                details: "$profileTests.details",
-                precautions: "$profileTests.precautions",
+          {
+            $unwind: "$profileTests"
+          },
+          {
+            $group: {
+              _id: "$profileId",
+              icon: {
+                $first: "$packageProfiles.icon"
+              },
+              title: {
+                $first: "$packageProfiles.title"
+              },
+              CTA: {
+                $first: "$packageProfiles.CTA"
+              },
+              description: {
+                $first: "$packageProfiles.details"
+              },
+              precaution: {
+                $first: "$packageProfiles.precautions"
+              },
+              duration: {
+                $first: "$packageProfiles.duration"
+              },
+              profileTests: {
+                $push: {
+                  _id: "$profileTests._id",
+                  icon: "$profileTests.icon",
+                  title: "$profileTests.title",
+                  duration: "$profileTests.duration",
+                  details: "$profileTests.details",
+                  precautions: "$profileTests.precautions",
+                },
               },
             },
           },
-        },
-      ])
+        ])
         .then((testData) => {
           var obj = {
             package: resPkg,
@@ -183,9 +221,14 @@ router.post("/remove/profile/from/:packageId", (req, res) => {
   log.debug("/api/");
   crudController
     .deleteMulti(PackageTest, {
-      $and: [
-        { packageId: req.params.packageId },
-        { profileId: { $in: req.body.profileArray } },
+      $and: [{
+          packageId: req.params.packageId
+        },
+        {
+          profileId: {
+            $in: req.body.profileArray
+          }
+        },
       ],
     })
     .then((testData) => {
@@ -201,7 +244,10 @@ router.post("/add/profile/to/:packageId", (req, res) => {
   log.debug("/api/");
   var obj = [];
   req.body.profileArray.forEach((element) => {
-    obj.push({ packageId: req.params.packageId, profileId: element });
+    obj.push({
+      packageId: req.params.packageId,
+      profileId: element
+    });
   });
   crudController
     .insertMultiple(PackageTest, obj)
@@ -221,7 +267,9 @@ router.delete("/master/:id", (req, res) => {
     .delete(PackageMaster, req.params.id)
     .then((userData) => {
       crudController
-        .deleteMulti(PackageTest, { packageId: req.params.id })
+        .deleteMulti(PackageTest, {
+          packageId: req.params.id
+        })
         .then((resData) => {
           console.log("delete multi++++", resData);
         })
@@ -260,8 +308,10 @@ router.get("/by/labId/:id", (req, res) => {
   log.debug("/api/profile/by/labid");
   crudController
     .getbySortByTwoPopulate(
-      LabPackages,
-      { labId: req.params.id, status: "active" },
+      LabPackages, {
+        labId: req.params.id,
+        status: "active"
+      },
       "packageId",
       "centerId"
     )
@@ -316,8 +366,9 @@ router.get("/admin/by/labPackageId/:id", (req, res) => {
   log.debug("/api/");
   crudController
     .getbySortByTwoPopulate(
-      LabPackages,
-      { _id: req.params.id },
+      LabPackages, {
+        _id: req.params.id
+      },
       "packageId",
       "centerId"
     )
@@ -333,9 +384,10 @@ router.get("/by/labId/:id", (req, res) => {
   log.debug("/api/profile/by/labid");
   crudController
     .getbySortByTwoPopulate(
-      LabPackages,
-      { labId: req.params.id, status: "active" },
-      {
+      LabPackages, {
+        labId: req.params.id,
+        status: "active"
+      }, {
         path: "packageId",
         model: "PackageMaster",
         // select: {
@@ -365,215 +417,278 @@ router.get("/by/labId/:id", (req, res) => {
 
 router.get("/by/labPackage/:id", (req, res) => {
   log.debug("/api/");
-  LabPackages.aggregate([
-    {
-      $match: {
-        _id: req.params.id,
-        status: "active",
+  LabPackages.aggregate([{
+        $match: {
+          _id: req.params.id,
+          status: "active",
+        },
       },
-    },
-    {
-      $lookup: {
-        from: "labcenters",
-        let: { centerId: "$centerId" },
-        as: "center",
-        pipeline: [
-          {
+      {
+        $lookup: {
+          from: "labcenters",
+          let: {
+            centerId: "$centerId"
+          },
+          as: "center",
+          pipeline: [{
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$_id", "$$centerId"] },
-                  { $eq: ["$status", "active"] },
+                $and: [{
+                    $eq: ["$_id", "$$centerId"]
+                  },
+                  {
+                    $eq: ["$status", "active"]
+                  },
                 ],
               },
             },
-          },
-        ],
+          }, ],
+        },
       },
-    },
-    { $unwind: "$center" },
-    {
-      $lookup: {
-        from: "labs",
-        let: { labId: "$labId" },
-        as: "lab",
-        pipeline: [
-          {
+      {
+        $unwind: "$center"
+      },
+      {
+        $lookup: {
+          from: "labs",
+          let: {
+            labId: "$labId"
+          },
+          as: "lab",
+          pipeline: [{
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$_id", "$$labId"] },
-                  { $eq: ["$status", "active"] },
+                $and: [{
+                    $eq: ["$_id", "$$labId"]
+                  },
+                  {
+                    $eq: ["$status", "active"]
+                  },
                 ],
               },
             },
-          },
-        ],
+          }, ],
+        },
       },
-    },
-    { $unwind: "$lab" },
-    {
-      $lookup: {
-        from: "packagemasters",
-        let: { packageId: "$packageId" },
-        as: "package",
-        pipeline: [
-          {
+      {
+        $unwind: "$lab"
+      },
+      {
+        $lookup: {
+          from: "packagemasters",
+          let: {
+            packageId: "$packageId"
+          },
+          as: "package",
+          pipeline: [{
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$_id", "$$packageId"] },
-                  { $eq: ["$status", "active"] },
+                $and: [{
+                    $eq: ["$_id", "$$packageId"]
+                  },
+                  {
+                    $eq: ["$status", "active"]
+                  },
                 ],
               },
             },
-          },
-        ],
+          }, ],
+        },
       },
-    },
-    { $unwind: "$package" },
-    {
-      $lookup: {
-        from: "packagetests",
-        let: { packageId: "$package._id" },
-        as: "profileData",
-        pipeline: [
-          {
+      {
+        $unwind: "$package"
+      },
+      {
+        $lookup: {
+          from: "packagetests",
+          let: {
+            packageId: "$package._id"
+          },
+          as: "profileData",
+          pipeline: [{
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$packageId", "$$packageId"] },
-                  { $eq: ["$status", "active"] },
+                $and: [{
+                    $eq: ["$packageId", "$$packageId"]
+                  },
+                  {
+                    $eq: ["$status", "active"]
+                  },
                 ],
               },
             },
-          },
-        ],
+          }, ],
+        },
       },
-    },
-    { $unwind: "$profileData" },
-    {
-      $lookup: {
-        from: "profilemasters",
-        let: { profileId: "$profileData.profileId" },
-        as: "profile",
-        pipeline: [
-          {
+      {
+        $unwind: "$profileData"
+      },
+      {
+        $lookup: {
+          from: "profilemasters",
+          let: {
+            profileId: "$profileData.profileId"
+          },
+          as: "profile",
+          pipeline: [{
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$_id", "$$profileId"] },
-                  { $eq: ["$status", "active"] },
+                $and: [{
+                    $eq: ["$_id", "$$profileId"]
+                  },
+                  {
+                    $eq: ["$status", "active"]
+                  },
                 ],
               },
             },
-          },
-        ],
+          }, ],
+        },
       },
-    },
-    { $unwind: "$profile" },
+      {
+        $unwind: "$profile"
+      },
 
-    {
-      $lookup: {
-        from: "profiletests",
-        let: { profileId: "$profile._id" },
-        as: "testData",
-        pipeline: [
-          {
+      {
+        $lookup: {
+          from: "profiletests",
+          let: {
+            profileId: "$profile._id"
+          },
+          as: "testData",
+          pipeline: [{
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$profileId", "$$profileId"] },
-                  { $eq: ["$status", "active"] },
+                $and: [{
+                    $eq: ["$profileId", "$$profileId"]
+                  },
+                  {
+                    $eq: ["$status", "active"]
+                  },
                 ],
               },
             },
-          },
-        ],
+          }, ],
+        },
       },
-    },
-    { $unwind: "$testData" },
-    {
-      $lookup: {
-        from: "testmasters",
-        let: { testId: "$testData.testId" },
-        as: "tests",
-        pipeline: [
-          {
+      {
+        $unwind: "$testData"
+      },
+      {
+        $lookup: {
+          from: "testmasters",
+          let: {
+            testId: "$testData.testId"
+          },
+          as: "tests",
+          pipeline: [{
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$_id", "$$testId"] },
-                  { $eq: ["$status", "active"] },
+                $and: [{
+                    $eq: ["$_id", "$$testId"]
+                  },
+                  {
+                    $eq: ["$status", "active"]
+                  },
                 ],
               },
             },
-          },
-        ],
+          }, ],
+        },
       },
-    },
-    { $unwind: "$tests" },
-    {
-      $group: {
-        _id: "$_id",
-        mrp: "$mrp",
-        discountOffer: "$discountOffer",
-        PPL: "$PPL",
-        icon: "$profile.icon",
-        title: "$profile.title",
-        description: "$profile.description",
-        precaution: "$profile.precaution",
-        lab: {
-          icon: "$lab.icon",
-          name: "$lab.name",
-          email: "$lab.email",
-          doc1: "$lab.doc1",
-          mobileNumber: "$lab.mobileNumber",
-          altMobileNumber: "$lab.altMobileNumber",
-          type: "$lab.type",
-          regCertNo: "$lab.regCertNo",
-          about: "$lab.about",
-        },
-        center: {
-          icon: "$center.icon",
-          name: "$center.name",
-          email: "$center.email",
-          fax: "$center.fax",
-          mobileNumber: "$center.mobileNumber",
-          type: "$center.type",
-          details: "$center.details",
-          address: "$center.address",
-          landmark: "$center.landmark",
-          state: "$center.state",
-          city: "$center.city",
-          pincode: "$center.pincode",
-          country: "$center.country",
-        },
-        profiles: {
-          $push: {
-            _id: "$profileData.profileId",
-            CTA: "$profile.CTA",
-            icon: "$profile.icon",
-            title: "$profile.title",
-            duration: "$profile.duration",
-            details: "$profile.details",
-            precautions: "$profile.precautions",
-            tests: {
-              $push: {
-                _id: "$testData.testId",
-                CTA: "$test.CTA",
-                icon: "$test.icon",
-                title: "$test.title",
-                duration: "$test.duration",
-                details: "$test.details",
-                precautions: "$test.precautions",
+      {
+        $unwind: "$tests"
+      },
+      {
+        $group: {
+          _id: "$_id",
+          mrp: "$mrp",
+          discountOffer: "$discountOffer",
+          PPL: "$PPL",
+          icon: "$profile.icon",
+          title: "$profile.title",
+          description: "$profile.description",
+          precaution: "$profile.precaution",
+          lab: {
+            icon: "$lab.icon",
+            name: "$lab.name",
+            email: "$lab.email",
+            doc1: "$lab.doc1",
+            mobileNumber: "$lab.mobileNumber",
+            altMobileNumber: "$lab.altMobileNumber",
+            type: "$lab.type",
+            regCertNo: "$lab.regCertNo",
+            about: "$lab.about",
+          },
+          center: {
+            icon: "$center.icon",
+            name: "$center.name",
+            email: "$center.email",
+            fax: "$center.fax",
+            mobileNumber: "$center.mobileNumber",
+            type: "$center.type",
+            details: "$center.details",
+            address: "$center.address",
+            landmark: "$center.landmark",
+            state: "$center.state",
+            city: "$center.city",
+            pincode: "$center.pincode",
+            country: "$center.country",
+          },
+          profiles: {
+            $push: {
+              _id: "$profileData.profileId",
+              CTA: "$profile.CTA",
+              icon: "$profile.icon",
+              title: "$profile.title",
+              duration: "$profile.duration",
+              details: "$profile.details",
+              precautions: "$profile.precautions",
+              tests: {
+                $push: {
+                  _id: "$testData.testId",
+                  CTA: "$test.CTA",
+                  icon: "$test.icon",
+                  title: "$test.title",
+                  duration: "$test.duration",
+                  details: "$test.details",
+                  precautions: "$test.precautions",
+                },
               },
             },
           },
         },
       },
-    },
-  ])
+    ])
+    .then((testData) => {
+      response.successResponse(res, 200, testData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
+router.post("/get/related", (req, res) => {
+  log.debug("/api/");
+  crudController
+    .getBy(PackageMaster, {
+      related: req.body.related
+    })
+    .then((testData) => {
+      response.successResponse(res, 200, testData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+});
+
+router.post("/add/package", (req, res) => {
+  crudController
+    .add(
+      PackageMaster,req.body
+    )
     .then((testData) => {
       response.successResponse(res, 200, testData);
     })

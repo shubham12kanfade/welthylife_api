@@ -8,7 +8,6 @@ module.exports = {
   sendMail: (data) => {
     return new Promise((resolve, reject) => {
       log.debug("/api/sendnotification/", data);
-      console.log(config.auth.user, config.auth.pass);
       var transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {

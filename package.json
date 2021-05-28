@@ -10,7 +10,7 @@
     "@types/underscore": "^1.8.9",
     "all": "0.0.0",
     "aws-sdk": "^2.432.0",
-    "bcrypt": "^5.0.0",
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.18.3",
     "consolidate": "^0.15.1",
     "cors": "^2.8.5",

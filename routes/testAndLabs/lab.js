@@ -8,7 +8,7 @@ const LabCenter = mongoose.model("LabCenter");
 let auth = require("../../helper/auth");
 let _ = require("lodash");
 
-router.get("/get/all", (req, res) => {
+router.get("/get/all", (req, res) => { 
   crudController
     .getAll(Lab)
     .then((resData) => {
@@ -169,4 +169,22 @@ router.delete("/delete/by/:id", (req, res) => {
     });
 });
 
+<<<<<<< HEAD
 module.exports = router;
+=======
+router.post("/search/labByName", (req, res) => {
+  log.debug("/api/");
+  var search = req.body.search
+  crudController
+    .getBy(Lab, { name: {"$regex": search, $options: "i", }})
+    .then((resData) => {
+      response.successResponse(res, 200, resData);
+    })
+    .catch((error) => {
+      log.error(error);
+      response.errorResponse(res, 500);
+    });
+})
+
+module.exports = router;
+>>>>>>> 21a08eed729d38944fd2e9684238b3bb58870b2f

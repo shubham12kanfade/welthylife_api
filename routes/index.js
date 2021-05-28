@@ -53,7 +53,7 @@ module.exports = (app) => {
   let prodSubCat = require("./products/productSubCatagories");
   let userCart = require("./products/usersCart");
 
-  let doctorReg = require("./doctor/doctorReg");
+  let banner = require('./home/banner.routes')
 
   app.use("/api/v1/authentication", authRoute);
   app.use("/api/v1/uploads", upload);

@@ -61,8 +61,5 @@ require("./product/productSubCatagories");
 require("./userAddresses");
 
 require("./healthFeeds");
-require("./contact");
-require("./medicine/medicine");
-require("./medicine/medicalReceipt");
-require("./qts/registerations");
-require("./doctor/doctorReg");
+
+require('./banners/banner.model')

@@ -697,4 +697,9 @@ router.post("/add/package", (req, res) => {
       response.errorResponse(res, 500);
     });
 });
+<<<<<<< HEAD
 module.exports = router;
+=======
+
+module.exports = router;
+>>>>>>> 21a08eed729d38944fd2e9684238b3bb58870b2f

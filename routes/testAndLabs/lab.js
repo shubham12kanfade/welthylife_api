@@ -169,9 +169,6 @@ router.delete("/delete/by/:id", (req, res) => {
     });
 });
 
-<<<<<<< HEAD
-module.exports = router;
-=======
 router.post("/search/labByName", (req, res) => {
   log.debug("/api/");
   var search = req.body.search
@@ -187,4 +184,3 @@ router.post("/search/labByName", (req, res) => {
 })
 
 module.exports = router;
->>>>>>> 21a08eed729d38944fd2e9684238b3bb58870b2f

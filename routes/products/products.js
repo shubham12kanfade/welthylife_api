@@ -19,7 +19,7 @@ router.post("/", (req, res) => {
     });
 });
 
-router.get("/", (req, res) => {
+router.get("/all", (req, res) => {
   log.debug("/api/");
   crudController
     .getAll(Product)

@@ -78,4 +78,5 @@ require('./controllers/socket.controller')(io);
 
 server.listen(config.server.port, () => {
     console.log('App listening on port : ', config.server.port);
+    console.log("test");
 });
